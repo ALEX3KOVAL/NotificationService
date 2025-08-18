@@ -1,0 +1,36 @@
+app:
+  mailer:
+    host: ""
+    port: 1
+    sender_address: ""
+    username: ""
+    password: ""
+    protocol: ""
+    max_of_attempts: ${APP_MAILER_MAX_OF_ATTEMPTS}
+    otp_template_folder_path: ${APP_MAILER_OTP_TEMPLATE_FOLDER_PATH}
+    otp_template_name: ${APP_MAILER_OTP_TEMPLATE_NAME}
+  amqp:
+    queue_name: ${APP_AMQP_QUEUE_NAME}
+    conn:
+      username: ${APP_AMQP_CONNECTION_USERNAME}
+      password: ${APP_AMQP_CONNECTION_PASSWORD}
+
+server:
+  port: 10249
+
+spring:
+  freemarker:
+    cache: false
+    charset: UTF-8
+  r2dbc:
+    url:  ${POSTGRES_R2DBC_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  #    url: jdbc:postgresql://localhost:5436/auth_service
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: true
+        format_sql: true
+        hbm2ddl: validate

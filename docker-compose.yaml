@@ -1,0 +1,77 @@
+version: "3.9"
+
+networks:
+  alex3koval-local:
+    external: true
+
+services:
+  notification_service:
+    container_name: notification_service
+    platform: linux/amd64
+    networks:
+      - alex3koval-local
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "10250:10249"
+    depends_on:
+      - rabbitmq
+      - notification_service_db
+
+  notification_service_db:
+    container_name: notification_service_db
+    platform: linux/amd64
+    image: postgres:16
+    networks:
+      - alex3koval-local
+    env_file:
+      - ".env"
+    ports:
+      - "5437:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 1s
+    restart: unless-stopped
+
+  migrator:
+    container_name: migrator
+    platform: linux/amd64
+    image: flyway/flyway:10.20.0-alpine
+    command: migrate
+    env_file:
+      - .env
+    environment:
+      FLYWAY_URL: $POSTGRES_JDBC_URL
+      FLYWAY_USER: $POSTGRES_USER
+      FLYWAY_PASSWORD: $POSTGRES_PASSWORD
+      FLYWAY_OUT_OF_ORDER: true
+    volumes:
+      - ./migrations:/flyway/sql
+    networks:
+      - alex3koval-local
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.10.7-management
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=rmuser
+      - RABBITMQ_DEFAULT_PASS=rmpassword
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
