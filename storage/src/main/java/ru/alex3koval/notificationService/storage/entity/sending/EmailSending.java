@@ -1,31 +1,19 @@
 package ru.alex3koval.notificationService.storage.entity.sending;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
-@Table(name = "email_sending")
+@Table("email_sending")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class EmailSending extends Sending<Long> {
-    @Column(
-        name = "subject",
-        nullable = false,
-        updatable = false,
-        columnDefinition = "VARCHAR"
-    )
+public class EmailSending<T> extends Sending<T> {
+    @Column("subject")
     private String subject;
 
-    @Column(
-        name = "text",
-        nullable = false,
-        updatable = false,
-        columnDefinition = "VARCHAR"
-    )
+    @Column("text")
     private String text;
 }

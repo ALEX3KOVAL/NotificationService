@@ -9,25 +9,32 @@ version = "0.0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    loadEventingGithubPackages()
 }
 
 dependencies {
     implementation(project(":domain"))
-    implementation(project(":eventingContract"))
+    implementation("alex3koval:eventing-contract:latest.release")
 
     implementation("io.projectreactor:reactor-core:3.4.40")
 
     implementation("org.springframework:spring-webflux:6.2.9")
     implementation("org.springframework.boot:spring-boot-starter-freemarker")
-    implementation("org.springframework.boot:spring-boot-starter-amqp:3.2.1")
-    implementation("org.springframework.amqp:spring-rabbit-stream")
     implementation("org.springframework.boot:spring-boot-starter-mail")
 
-    compileOnly("org.projectlombok:lombok:1.18.38")
-    annotationProcessor("org.projectlombok:lombok:1.18.38")
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+
+    testCompileOnly("org.projectlombok:lombok")
+    testAnnotationProcessor("org.projectlombok:lombok")
+
+
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
 }
 
 java {

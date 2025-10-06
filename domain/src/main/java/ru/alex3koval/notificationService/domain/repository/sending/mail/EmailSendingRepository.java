@@ -6,5 +6,5 @@ import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.Mail
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.UpdateMailSendingWDTO;
 
 
-public interface EmailSendingRepository extends BaseRepository<Long, MailSendingRDTO, CreateMailSendingWDTO, UpdateMailSendingWDTO> {
+public interface EmailSendingRepository<T> extends BaseRepository<T, MailSendingRDTO, CreateMailSendingWDTO, UpdateMailSendingWDTO> {
 }

@@ -4,29 +4,40 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "ru.alex3koval.notificationService"
+group = "ru.alex3koval"
 version = "0.0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    loadEventingGithubPackages()
+    loadEventerGitHubPackage(EventerType.KAFKA)
 }
 
 dependencies {
-    implementation(project(":configuration"))
     implementation(project(":domain"))
-    implementation(project(":eventingContract"))
-    implementation(project(":eventingImpl"))
+    implementation(project(":configuration"))
+    implementation(project(":appImpl"))
 
-    compileOnly("org.projectlombok:lombok:1.18.38")
-    annotationProcessor("org.projectlombok:lombok:1.18.38")
+    implementation("alex3koval:eventing-contract:latest.release")
+    implementation("alex3koval:eventing-impl:latest.release")
+    implementation("alex3koval:kafka-eventer:latest.release")
 
-    implementation("org.springframework.boot:spring-boot-starter-amqp:3.2.1")
-    implementation("org.springframework.amqp:spring-rabbit-stream")
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
 
-    implementation("org.springframework:spring-context:6.2.7")
+    implementation("org.springframework.boot:spring-boot-starter")
 
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    //implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka:4.3.0")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    //implementation("org.springframework.boot:spring-boot-starter-data-rest")
+    //implementation("org.springframework.boot:spring-boot-starter-hateoas")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks {
@@ -36,18 +47,16 @@ tasks {
         outputs.upToDateWhen { true }
     }
 
+    val copyResources = register("copyResources", Copy::class) {
+        from(sourceSets.main.get().resources)
+        into(rootProject.layout.buildDirectory.dir("resources").get().asFile.absolutePath)
+
+        outputs.upToDateWhen { true }
+    }
+
     bootJar {
         destinationDirectory.set(rootProject.layout.buildDirectory.get())
-        archiveFileName.set("eventHandlingApp.jar")
-        archiveClassifier = "all"
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-        val dependencies = configurations
-            .runtimeClasspath
-            .get()
-            .map(::zipTree)
-
-        from(dependencies)
+        archiveFileName.set("eventerApp.jar")
 
         manifest {
             attributes.apply {
@@ -59,9 +68,6 @@ tasks {
         }
 
         dependsOn(copyDeps)
+        dependsOn(copyResources)
     }
-}
-
-tasks.test {
-    useJUnitPlatform()
 }

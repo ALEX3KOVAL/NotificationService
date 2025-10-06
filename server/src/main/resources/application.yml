@@ -1,36 +1,69 @@
 app:
   mailer:
-    host: ""
-    port: 1
-    sender_address: ""
-    username: ""
-    password: ""
-    protocol: ""
+    sender_address: ${APP_MAILER_SENDER_ADDRESS}
     max_of_attempts: ${APP_MAILER_MAX_OF_ATTEMPTS}
     otp_template_folder_path: ${APP_MAILER_OTP_TEMPLATE_FOLDER_PATH}
     otp_template_name: ${APP_MAILER_OTP_TEMPLATE_NAME}
-  amqp:
-    queue_name: ${APP_AMQP_QUEUE_NAME}
-    conn:
-      username: ${APP_AMQP_CONNECTION_USERNAME}
-      password: ${APP_AMQP_CONNECTION_PASSWORD}
+  eventer:
+    topic-params: [
+      {
+        topic: "phoneVerification",
+        group_id: "verification"
+      },
+      {
+        topic: "emailVerification",
+        group_id: "verification"
+      }
+    ]
+  cdc:
+    publication-name: ""
+    slot-name: ""
+    name: ""
+    plugin-name: ""
+    offset-storage-class: "org.apache.kafka.connect.storage.FileOffsetBackingStore"
+    offset-storage-file-name: ""
+    offset-flush-interval-millis: 12345
+    db-server-name: ""
+    db-host: ""
+    db-port: 123456
+    db-user: ""
+    db-password: ""
+    db-name: ""
+    table-white-list: ""
+    column-include-list: ""
 
 server:
-  port: 10249
+  port: ${APP_SERVER_PORT}
 
 spring:
+  main:
+    web-application-type: reactive
+
+  mail:
+    host: ${APP_MAILER_SMTP_HOST}
+    port: ${APP_MAILER_SMTP_PORT}
+    username: ${APP_MAILER_SMTP_USERNAME}
+    password: ${APP_MAILER_SMTP_PASSWORD}
+    default-encoding: UTF-8
+    protocol: smtp
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages.packages: "*"
+      enable-auto-commit: false
+    admin:
+      auto-create: off
+      properties:
+        client.id: my-admin-client
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
+
   freemarker:
     cache: false
     charset: UTF-8
+    check-template-location: false
   r2dbc:
     url:  ${POSTGRES_R2DBC_URL}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
   #    url: jdbc:postgresql://localhost:5436/auth_service
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        show_sql: true
-        format_sql: true
-        hbm2ddl: validate

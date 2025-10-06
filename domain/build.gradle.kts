@@ -7,13 +7,14 @@ version = "0.0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    loadEventingGithubPackages()
 }
 
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.38")
     annotationProcessor("org.projectlombok:lombok:1.18.38")
 
-    implementation(project(":eventingContract"))
+    implementation("alex3koval:eventing-contract:latest.release")
     implementation("io.projectreactor:reactor-core:3.4.40")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))

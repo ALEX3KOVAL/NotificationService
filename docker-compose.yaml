@@ -16,9 +16,23 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "10250:10249"
+      - "10251:${APP_SERVER_PORT}"
     depends_on:
-      - rabbitmq
+      - notification_service_db
+
+  eventer_app:
+    container_name: eventer_app
+    platform: linux/amd64
+    networks:
+      - alex3koval-local
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: EventerApp.Dockerfile
+    ports:
+      - "10252:${APP_SERVER_PORT}"
+    depends_on:
       - notification_service_db
 
   notification_service_db:
@@ -62,16 +76,35 @@ services:
     networks:
       - alex3koval-local
 
-  rabbitmq:
-    container_name: rabbitmq
-    image: rabbitmq:3.10.7-management
-    restart: always
+  kafka:
+    container_name: kafka
+    platform: linux/amd64
+    networks:
+      - alex3koval-local
+    image: 'bitnami/kafka:3.7.0'
     environment:
-      - RABBITMQ_DEFAULT_USER=rmuser
-      - RABBITMQ_DEFAULT_PASS=rmpassword
-      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092,EXTERNAL_SAME_HOST://0.0.0.0:29092, CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092, EXTERNAL_SAME_HOST://localhost:29092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL_SAME_HOST:PLAINTEXT
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_KRAFT_CLUSTER_ID=S40B8iVtR0umuTyuM1eLjA
+      - KAFKA_CFG_NODE_ID=1
     volumes:
-      - ./rabbitmq:/var/lib/rabbitmq
+      - ./volume-kafka:/bitnami/kafka
+
+  kafka_ui:
+    image: provectuslabs/kafka-ui:v0.7.1
+    container_name: kafka_ui
+    platform: linux/amd64
     ports:
-      - "15672:15672"
-      - "5672:5672"
+      - "10249:8080"
+    networks:
+      - alex3koval-local
+    environment:
+      - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_NAME=kraft

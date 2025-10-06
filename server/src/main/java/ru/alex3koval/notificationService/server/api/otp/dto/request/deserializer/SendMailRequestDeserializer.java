@@ -35,12 +35,12 @@ public class SendMailRequestDeserializer extends StdDeserializer<SendOtpMailRequ
                 p.currentLocation()
             ));
 
-        String rawMailType = node.get("mailType").asText();
+        String rawOtpReason = node.get("otpReason").asText();
 
         OtpReason otpReason = OtpReason
-            .of(rawMailType)
+            .of(rawOtpReason)
             .orElseThrow(() -> new CustomDeserializationException(
-                "Клиент передал некорректный тип OTP: " + rawMailType,
+                "Клиент передал некорректный тип OTP: " + rawOtpReason,
                 "mailType",
                 p.currentLocation()
             ));
@@ -48,7 +48,7 @@ public class SendMailRequestDeserializer extends StdDeserializer<SendOtpMailRequ
         @NotBlank
         String subject = node.get("subject").asText();
         @NotBlank
-        Short code = Short.valueOf(node.get("text").asText());
+        Short code = Short.valueOf(node.get("code").asText());
         JsonNode attachments = node.get("attachmentUrls");
 
         List<String> attachmentUrls = attachments != null

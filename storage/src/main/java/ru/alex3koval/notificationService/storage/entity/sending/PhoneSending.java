@@ -1,23 +1,14 @@
 package ru.alex3koval.notificationService.storage.entity.sending;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
 @Table(name = "phone_sending")
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
-public class PhoneSending extends Sending<Long> {
-    @Column(
-        name = "code",
-        nullable = false,
-        updatable = false,
-        columnDefinition = "SMALLINT"
-    )
+@AllArgsConstructor
+public class PhoneSending<T> extends Sending<T> {
+    @Column("code")
     Short code;
 }

@@ -1,64 +1,64 @@
 package ru.alex3koval.notificationService.storage.repository.impl;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.springframework.data.relational.core.query.Criteria;
+import org.springframework.data.relational.core.query.Query;
+import org.springframework.data.relational.core.query.Update;
+import org.springframework.data.relational.core.sql.SqlIdentifier;
 import reactor.core.publisher.Mono;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.EmailSendingRepository;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.CreateMailSendingWDTO;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.MailSendingRDTO;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.UpdateMailSendingWDTO;
 import ru.alex3koval.notificationService.storage.entity.sending.EmailSending;
-import ru.alex3koval.notificationService.storage.repository.jpa.JpaEmailSendingRepository;
+import ru.alex3koval.notificationService.storage.repository.orm.OrmEmailSendingRepository;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RequiredArgsConstructor
-public class EmailSendingRepositoryImpl implements EmailSendingRepository {
-    private final JpaEmailSendingRepository jpaRepository;
-    private final EntityManager entityManager;
+public class EmailSendingRepositoryImpl<T> implements EmailSendingRepository<T> {
+    private final OrmEmailSendingRepository jpaRepository;
+    private final R2dbcEntityTemplate template;
 
     @Override
-    public Mono<MailSendingRDTO> get(Long id) {
+    public Mono<MailSendingRDTO> get(T id) {
         return null;
     }
 
     @Override
-    public Mono<Long> create(CreateMailSendingWDTO createMailWDTO) {
+    public Mono<T> create(CreateMailSendingWDTO createMailWDTO) {
         return jpaRepository
             .save(toEntity(createMailWDTO))
-            .map(EmailSending::getId);
+            .map(EmailSending<T>::getId);
     }
 
     @Override
-    public Mono<Long> update(Long id, UpdateMailSendingWDTO updateMailSendingWDTO) {
-        String fieldsForUpdating = "";
+    public Mono<T> update(T id, UpdateMailSendingWDTO updateMailSendingWDTO) {
+        Map<SqlIdentifier, Object> fieldsForUpdating = new HashMap<>(Map.of());
 
         if (updateMailSendingWDTO.status() != null) {
-            fieldsForUpdating += "es.status = :status";
+            fieldsForUpdating.put(SqlIdentifier.quoted("status"), updateMailSendingWDTO.status());
         }
 
         if (fieldsForUpdating.isEmpty()) {
             return Mono.just(id);
         }
 
-        String finalFieldsForUpdating = fieldsForUpdating;
+        Query query = Query.query(
+            Criteria.where("id").is(id)
+        );
 
-        return Mono
-            .fromCallable(() -> {
-                entityManager
-                    .createQuery(
-                        String.format("UPDATE EmailSending es SET %s WHERE es.id = :id", finalFieldsForUpdating)
-                    )
-                    .setParameter("id", id)
-                    .setParameter("status", updateMailSendingWDTO.status())
-                    .executeUpdate();
-
-                return null;
-            })
+        return template
+            .update(EmailSending.class)
+            .matching(query)
+            .apply(Update.from(fieldsForUpdating))
             .thenReturn(id);
     }
 
-    private EmailSending toEntity(CreateMailSendingWDTO dto) {
-        return new EmailSending(
+    private EmailSending<T> toEntity(CreateMailSendingWDTO dto) {
+        return new EmailSending<>(
             dto.subject(),
             dto.text()
         );

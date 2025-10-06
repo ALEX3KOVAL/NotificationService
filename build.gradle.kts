@@ -1,5 +1,5 @@
 plugins {
-    java
+    id("java")
 }
 
 group = "ru.alex3koval.notificationService"
@@ -13,4 +13,5 @@ java {
 
 repositories {
     mavenCentral()
+    loadEventingGithubPackages()
 }

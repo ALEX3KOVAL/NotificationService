@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Import;
 import ru.alex3koval.notificationService.configuration.di.AppCommonConfiguration;
 
 @Configuration
-@Import(AppCommonConfiguration.class)
+@Import({AppCommonConfiguration.class, HttpBodyDeserializerConfiguration.class})
 @ComponentScan("ru.alex3koval.notificationService.storage")
 public class MainConfiguration {
 }
