@@ -18,6 +18,8 @@ dependencies {
 
     implementation("io.projectreactor:reactor-core:3.4.40")
 
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.19.2")
+
     implementation("org.springframework:spring-webflux:6.2.9")
     implementation("org.springframework.boot:spring-boot-starter-freemarker")
     implementation("org.springframework.boot:spring-boot-starter-mail")
