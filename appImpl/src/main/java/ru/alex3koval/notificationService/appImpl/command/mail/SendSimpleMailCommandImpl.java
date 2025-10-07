@@ -1,6 +1,7 @@
 package ru.alex3koval.notificationService.appImpl.command.mail;
 
 import lombok.NonNull;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
@@ -27,13 +28,12 @@ public class SendSimpleMailCommandImpl<T> extends SendMailCommand<T> {
             attachmentUrls,
             mailerService
         );
-
         this.text = text;
     }
 
     @Override
     @NonNull
-    //@Transactional
+    @Transactional
     public Mono<Tuple2<SendingStatus, T>> execute() {
         return sendMessage(text).subscribeOn(Schedulers.boundedElastic());
     }

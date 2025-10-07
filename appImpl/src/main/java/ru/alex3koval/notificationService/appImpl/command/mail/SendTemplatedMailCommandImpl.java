@@ -3,6 +3,7 @@ package ru.alex3koval.notificationService.appImpl.command.mail;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import lombok.NonNull;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.reactive.result.view.freemarker.FreeMarkerConfigurer;
 import reactor.core.publisher.Mono;
@@ -24,16 +25,13 @@ public class SendTemplatedMailCommandImpl<T> extends SendTemplatedMailCommand<T>
         FreeMarkerConfigurer configurer,
         MailerService<T> mailerService
     ) {
-        super(
-            dto,
-            mailerService
-        );
-
+        super(dto, mailerService);
         this.configurer = configurer;
     }
 
     @Override
     @NonNull
+    @Transactional
     public Mono<Tuple2<SendingStatus, T>> execute() throws DomainException {
         try {
             assert model != null;
