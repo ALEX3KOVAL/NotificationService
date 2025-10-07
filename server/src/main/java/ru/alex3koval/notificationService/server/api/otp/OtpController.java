@@ -1,11 +1,10 @@
 package ru.alex3koval.notificationService.server.api.otp;
 
-
 import io.github.resilience4j.reactor.retry.RetryOperator;
 import io.github.resilience4j.retry.MaxRetriesExceededException;
-import io.github.resilience4j.retry.RetryRegistry;
-import lombok.RequiredArgsConstructor;
+import io.github.resilience4j.retry.Retry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,20 +26,27 @@ import ru.alex3koval.notificationService.server.api.otp.dto.request.SendOtpMailR
 
 @RestController
 @RequestMapping("otp")
-@RequiredArgsConstructor
 @Slf4j
 public class OtpController {
     private final AppEnvironment appEnv;
     private final SendTemplatedMailCommandFactory<?> sendOtpViaTemplatedMailCommandFactory;
-    private final RetryRegistry retryRegistry;
-
-    @Lazy
+    private final Retry otpRetry;
     private final TransactionalOutBoxReactiveEventPusherFactory<?> transactionalOutBoxEventPusherFactory;
+
+    public OtpController(
+        AppEnvironment appEnv,
+        SendTemplatedMailCommandFactory<?> sendOtpViaTemplatedMailCommandFactory,
+        @Qualifier("otpRetry") Retry otpRetry,
+        @Lazy TransactionalOutBoxReactiveEventPusherFactory<?> transactionalOutBoxEventPusherFactory
+    ) {
+        this.appEnv = appEnv;
+        this.otpRetry = otpRetry;
+        this.sendOtpViaTemplatedMailCommandFactory = sendOtpViaTemplatedMailCommandFactory;
+        this.transactionalOutBoxEventPusherFactory = transactionalOutBoxEventPusherFactory;
+    }
 
     @PostMapping("email")
     Mono<ServerResponse> sendMail(@RequestBody @Validated SendOtpMailRequest body) throws DomainException {
-
-
         SendTemplatedMailCommand.DTO dto = new SendTemplatedMailCommand.DTO(
             body.recipientAddress(),
             body.subject(),
@@ -70,9 +76,7 @@ public class OtpController {
                         .subscribe();
                 }
             })
-            .transformDeferred(
-                RetryOperator.of(retryRegistry.retry("otpRetry"))
-            )
+            .transformDeferred(RetryOperator.of(otpRetry))
             .subscribeOn(Schedulers.boundedElastic());
     }
 }
