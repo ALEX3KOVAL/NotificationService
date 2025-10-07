@@ -23,7 +23,7 @@ public class EmailSendingRepositoryImpl<T> implements EmailSendingRepository<T> 
     private final R2dbcEntityTemplate template;
 
     @Override
-    public Mono<MailSendingRDTO> get(T id) {
+    public Mono<MailSendingRDTO<T>> get(T id) {
         return null;
     }
 
