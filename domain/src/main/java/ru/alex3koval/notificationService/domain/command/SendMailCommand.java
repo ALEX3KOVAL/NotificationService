@@ -11,7 +11,6 @@ import ru.alex3koval.notificationService.domain.vo.SendingStatus;
 import java.util.List;
 
 public abstract class SendMailCommand<T> implements Command<Mono<Tuple2<SendingStatus, T>>> {
-    //protected final EventService eventService;
     protected final SendingRecipient recipientAddress;
     protected final String subject;
     protected final List<String> attachmentUrls;
@@ -36,9 +35,9 @@ public abstract class SendMailCommand<T> implements Command<Mono<Tuple2<SendingS
                 subject,
                 messageText
             )
-            .zipWhen( sendingStatus -> {
+            .zipWhen(sendingStatus -> {
                 try {
-                    return mailerService.createSending(
+                    return mailerService.create(
                         new CreateMailSendingWDTO(
                             subject,
                             messageText,
@@ -46,8 +45,7 @@ public abstract class SendMailCommand<T> implements Command<Mono<Tuple2<SendingS
                             attachmentUrls
                         )
                     );
-                }
-                catch (DomainException exc) {
+                } catch (DomainException exc) {
                     return Mono.error(exc);
                 }
             });
