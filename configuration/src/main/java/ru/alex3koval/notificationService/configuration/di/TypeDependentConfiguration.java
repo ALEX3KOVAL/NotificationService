@@ -66,9 +66,9 @@ public class TypeDependentConfiguration {
         EmailSendingRepository<Long> repository
     ) {
         return new MailerServiceImpl<>(
+            repository,
             mailSender,
-            env.mailer().senderAddress(),
-            repository
+            env.mailer().senderAddress()
         );
     }
 
