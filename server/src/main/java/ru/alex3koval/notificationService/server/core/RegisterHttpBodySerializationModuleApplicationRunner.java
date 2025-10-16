@@ -7,7 +7,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 
 @RequiredArgsConstructor
-public class RegisterCustomDeserializerModuleApplicationRunner implements ApplicationRunner {
+public class RegisterHttpBodySerializationModuleApplicationRunner implements ApplicationRunner {
     private final ObjectMapper mapper;
     private final Module registerCustomDeserializerModule;
 

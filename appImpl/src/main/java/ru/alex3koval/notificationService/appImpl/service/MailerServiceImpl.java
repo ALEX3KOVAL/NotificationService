@@ -1,11 +1,14 @@
 package ru.alex3koval.notificationService.appImpl.service;
 
-import org.springframework.mail.SimpleMailMessage;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import reactor.core.publisher.Mono;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.EmailSendingRepository;
 import ru.alex3koval.notificationService.domain.service.MailerService;
-import ru.alex3koval.notificationService.domain.vo.SendingStatus;
+import ru.alex3koval.notificationService.domain.vo.MailFormat;
 
 public class MailerServiceImpl<T> extends MailerService<T> {
     private final JavaMailSender mailSender;
@@ -23,37 +26,52 @@ public class MailerServiceImpl<T> extends MailerService<T> {
     }
 
     @Override
-    public Mono<SendingStatus> send(
+    public Mono<Void> send(
         String recipientAddress,
         String subject,
-        String text
+        String text,
+        MailFormat format
     ) {
-        return Mono
-            .fromCallable(() -> {
-                SimpleMailMessage message = createMessage(
-                    recipientAddress,
-                    subject,
-                    text
-                );
+        return Mono.error(new RuntimeException("AJAJJAJAJAJAJJAJAJAJA"));
 
-                mailSender.send(message);
-
-                return SendingStatus.SENT;
-            })
-            .onErrorReturn(SendingStatus.FAILED);
+//        return Mono
+//            .fromCallable(() -> {
+//                MimeMessage message = createMessage(
+//                    recipientAddress,
+//                    subject,
+//                    text,
+//                    format
+//                );
+//
+//                mailSender.send(message);
+//                return null;
+//            });
     }
 
-    private SimpleMailMessage createMessage(
+    private MimeMessage createMessage(
         String recipientAddress,
         String subject,
-        String text
-    ) {
-        SimpleMailMessage message = new SimpleMailMessage();
+        String text,
+        MailFormat format
+    ) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        JavaMailSenderImpl impl = (JavaMailSenderImpl) mailSender;
 
-        message.setFrom(senderAddress);
-        message.setTo(recipientAddress);
-        message.setSubject(subject);
-        message.setText(text);
+        System.out.println("HOST --- " + impl.getHost());
+        System.out.println("PORT --- " + impl.getPort());
+        System.out.println("PROTOCOL --- " + impl.getProtocol());
+        System.out.println("USERNAME --- " + impl.getUsername());
+
+        System.out.println("SENDER ADDRESS --- " + senderAddress);
+        System.out.println("RECIPIENT --- " + recipientAddress);
+        System.out.println("SUBJECT --- " + subject);
+        System.out.println("TEXT --- " + text);
+
+        helper.setFrom(senderAddress);
+        helper.setTo(recipientAddress);
+        helper.setSubject(subject);
+        helper.setText(text, format.isHtml());
 
         return message;
     }

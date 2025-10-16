@@ -5,39 +5,34 @@ import freemarker.template.TemplateException;
 import lombok.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-import org.springframework.web.reactive.result.view.freemarker.FreeMarkerConfigurer;
+import org.springframework.web.reactive.result.view.freemarker.FreeMarkerConfig;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import reactor.util.function.Tuple2;
 import ru.alex3koval.notificationService.appImpl.core.StringConverters;
 import ru.alex3koval.notificationService.domain.command.SendTemplatedMailCommand;
 import ru.alex3koval.notificationService.domain.common.exception.DomainException;
 import ru.alex3koval.notificationService.domain.service.MailerService;
-import ru.alex3koval.notificationService.domain.vo.SendingStatus;
 
 import java.io.IOException;
 
 public class SendTemplatedMailCommandImpl<T> extends SendTemplatedMailCommand<T> {
-    private final FreeMarkerConfigurer configurer;
+    private final FreeMarkerConfig freemarkerClassLoaderConfig;
 
     public SendTemplatedMailCommandImpl(
         SendTemplatedMailCommand.DTO dto,
-        FreeMarkerConfigurer configurer,
+        FreeMarkerConfig freemarkerClassLoaderConfig,
         MailerService<T> mailerService
     ) {
         super(dto, mailerService);
-        this.configurer = configurer;
+        this.freemarkerClassLoaderConfig = freemarkerClassLoaderConfig;
     }
 
     @Override
     @NonNull
     @Transactional
-    public Mono<Tuple2<SendingStatus, T>> execute() throws DomainException {
+    public Mono<T> execute() throws DomainException {
         try {
-            assert model != null;
-
-            configurer.setTemplateLoaderPaths("file:" + templateFolderPath);
-            Template template = configurer.getConfiguration().getTemplate(templateFileName);
+            Template template = freemarkerClassLoaderConfig.getConfiguration().getTemplate(templateFileName);
             String messageText = FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
 
             return sendMessage(messageText).subscribeOn(Schedulers.boundedElastic());

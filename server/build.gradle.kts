@@ -15,17 +15,19 @@ repositories {
 
 dependencies {
     implementation(project(":domain"))
-    implementation("alex3koval:eventing-contract:latest.release")
+    implementation("alex3koval:eventing-contract:1.13.12")
     implementation("alex3koval:eventing-impl:latest.release")
     implementation(project(":configuration"))
     implementation(project(":appImpl"))
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
+    implementation("org.springframework.boot:spring-boot-starter-freemarker")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
-    //implementation("io.github.resilience4j:resilience4j-reactor:2.2.0")
-    //implementation("io.github.resilience4j:resilience4j-spring-boot3:2.2.0")
+    implementation("io.github.resilience4j:resilience4j-reactor:2.2.0")
+    implementation("io.github.resilience4j:resilience4j-spring-boot3:2.2.0")
 
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")

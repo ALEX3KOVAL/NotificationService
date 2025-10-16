@@ -1,16 +1,11 @@
 package ru.alex3koval.notificationService.domain.vo;
 
-import lombok.Getter;
-
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-@Getter
 public class Email extends SendingRecipient {
-    private final String value;
-
     private Email(String value) {
-        this.value = value;
+        super(value);
     }
 
     private static final Pattern pattern = Pattern.compile(

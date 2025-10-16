@@ -3,6 +3,7 @@ plugins {
     id("org.springframework.boot") version "3.5.4"
     id("io.spring.dependency-management") version "1.1.7"
 }
+val springCloudVersion by extra("2025.0.0")
 
 group = "ru.alex3koval.notificationService"
 version = "0.0.1-SNAPSHOT"
@@ -24,6 +25,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-freemarker")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j:3.3.0")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
@@ -41,6 +43,11 @@ dependencies {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
     }
 }
 

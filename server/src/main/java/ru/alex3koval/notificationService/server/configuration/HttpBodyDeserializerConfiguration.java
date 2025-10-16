@@ -10,12 +10,13 @@ import ru.alex3koval.notificationService.server.api.otp.dto.request.SendOtpMailR
 import ru.alex3koval.notificationService.server.api.otp.dto.request.SendOtpViaPhoneRequest;
 import ru.alex3koval.notificationService.server.api.otp.dto.request.deserializer.SendMailRequestDeserializer;
 import ru.alex3koval.notificationService.server.api.otp.dto.request.deserializer.SendOtpViaPhoneRequestDeserializer;
-import ru.alex3koval.notificationService.server.core.RegisterCustomDeserializerModuleApplicationRunner;
+import ru.alex3koval.notificationService.server.core.RegisterHttpBodySerializationModuleApplicationRunner;
 
 @Configuration
 public class HttpBodyDeserializerConfiguration {
     @Bean
-    Module customDeserializers() {
+    @Qualifier("httpBodyDeserializerModule")
+    Module httpBodyDeserializers() {
         SimpleModule module = new SimpleModule();
 
         module.addDeserializer(SendOtpViaPhoneRequest.class, new SendOtpViaPhoneRequestDeserializer());
@@ -25,10 +26,10 @@ public class HttpBodyDeserializerConfiguration {
     }
 
     @Bean
-    RegisterCustomDeserializerModuleApplicationRunner registerCustomDeserializerModuleApplicationRunner(
+    RegisterHttpBodySerializationModuleApplicationRunner registerCustomDeserializerModuleApplicationRunner(
         ObjectMapper objectMapper,
-        Module customDeserializers
+        @Qualifier("httpBodyDeserializerModule") Module httpBodyDeserializers
     ) {
-        return new RegisterCustomDeserializerModuleApplicationRunner(objectMapper, customDeserializers);
+        return new RegisterHttpBodySerializationModuleApplicationRunner(objectMapper, httpBodyDeserializers);
     }
 }

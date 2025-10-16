@@ -4,13 +4,19 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("app")
 public record AppEnvironment(
-    Mailer mailer
+    Mailer mailer,
+    Sms sms
 ) {
     public record Mailer(
         String senderAddress,
         Short maxOfAttempts,
         String otpTemplateFolderPath,
         String otpTemplateName
+    ) {
+    }
+
+    public record Sms(
+        String otpTemplateJsonFilePath
     ) {
     }
 }

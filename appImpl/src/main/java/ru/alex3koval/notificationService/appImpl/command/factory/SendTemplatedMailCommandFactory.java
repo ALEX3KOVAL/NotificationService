@@ -1,29 +1,22 @@
 package ru.alex3koval.notificationService.appImpl.command.factory;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.reactive.result.view.freemarker.FreeMarkerConfigurer;
+import org.springframework.web.reactive.result.view.freemarker.FreeMarkerConfig;
+import ru.alex3koval.notificationService.appImpl.command.mail.SendTemplatedMailCommandImpl;
 import ru.alex3koval.notificationService.domain.command.SendTemplatedMailCommand;
 import ru.alex3koval.notificationService.domain.service.MailerService;
-import ru.alex3koval.notificationService.appImpl.command.mail.SendTemplatedMailCommandImpl;
 
-import java.util.Map;
 
 @RequiredArgsConstructor
-public class SendTemplatedMailCommandFactory<T> {
+public class SendTemplatedMailCommandFactory<T> implements CommandFactory<SendTemplatedMailCommand<T>, SendTemplatedMailCommand.DTO> {
     private final MailerService<T> mailerService;
-    private final FreeMarkerConfigurer configurer;
+    private final FreeMarkerConfig freemarkerClassLoaderConfig;
 
+    @Override
     public SendTemplatedMailCommand<T> create(SendTemplatedMailCommand.DTO dto) {
-        Map<String, Object> model = Map.of(
-            "code", dto.getCode(),
-            "reason", dto.getOtpReason()
-        );
-
-        dto.setModel(model);
-
         return new SendTemplatedMailCommandImpl<>(
             dto,
-            configurer,
+            freemarkerClassLoaderConfig,
             mailerService
         );
     }

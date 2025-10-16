@@ -35,7 +35,7 @@ public class SendMailRequestDeserializer extends StdDeserializer<SendOtpMailRequ
                 p.currentLocation()
             ));
 
-        String rawOtpReason = node.get("otpReason").asText();
+        String rawOtpReason = node.get("reason").asText();
 
         OtpReason otpReason = OtpReason
             .of(rawOtpReason)

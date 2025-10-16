@@ -1,15 +1,10 @@
 package ru.alex3koval.notificationService.domain.vo;
 
-import lombok.Getter;
-
 import java.util.Optional;
 
-@Getter
 public class Phone extends SendingRecipient {
-    private final String value;
-
     private Phone(String value) {
-        this.value = value;
+        super(value);
     }
 
     public static Optional<SendingRecipient> of(String value) {

@@ -1,5 +1,7 @@
 package ru.alex3koval.notificationService.storage.repository.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
@@ -19,27 +21,32 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 public class EmailSendingRepositoryImpl<T> implements EmailSendingRepository<T> {
-    private final OrmEmailSendingRepository jpaRepository;
+    private final OrmEmailSendingRepository<T> jpaRepository;
+    private final ObjectMapper objectMapper;
     private final R2dbcEntityTemplate template;
 
     @Override
     public Mono<MailSendingRDTO<T>> get(T id) {
-        return null;
+        return jpaRepository.findById(id).map(this::toRdto);
     }
 
     @Override
     public Mono<T> create(CreateMailSendingWDTO createMailWDTO) {
-        return jpaRepository
-            .save(toEntity(createMailWDTO))
-            .map(EmailSending<T>::getId);
+        try {
+            return jpaRepository
+                .saveWithReturning(toEntity(createMailWDTO))
+                .map(EmailSending::getId);
+        } catch (JsonProcessingException exc) {
+            return Mono.error(exc);
+        }
     }
 
     @Override
     public Mono<T> update(T id, UpdateMailSendingWDTO updateMailSendingWDTO) {
         Map<SqlIdentifier, Object> fieldsForUpdating = new HashMap<>(Map.of());
 
-        if (updateMailSendingWDTO.status() != null) {
-            fieldsForUpdating.put(SqlIdentifier.quoted("status"), updateMailSendingWDTO.status());
+        if (updateMailSendingWDTO.subject() != null) {
+            fieldsForUpdating.put(SqlIdentifier.quoted("subject"), updateMailSendingWDTO.subject());
         }
 
         if (fieldsForUpdating.isEmpty()) {
@@ -57,10 +64,23 @@ public class EmailSendingRepositoryImpl<T> implements EmailSendingRepository<T> 
             .thenReturn(id);
     }
 
-    private EmailSending<T> toEntity(CreateMailSendingWDTO dto) {
+    private EmailSending<T> toEntity(CreateMailSendingWDTO dto) throws JsonProcessingException {
         return new EmailSending<>(
             dto.subject(),
-            dto.text()
+            dto.recipient(),
+            dto.reason(),
+            dto.format(),
+            objectMapper.writeValueAsString(dto.model()),
+            dto.createdAt(),
+            dto.createdAt()
+        );
+    }
+
+    private MailSendingRDTO<T> toRdto(EmailSending<T> entity) {
+        return new MailSendingRDTO<>(
+            entity.getId(),
+            entity.getRecipient(),
+            entity.getSubject()
         );
     }
 }

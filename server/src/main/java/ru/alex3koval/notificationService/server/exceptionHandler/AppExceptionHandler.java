@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
-import ru.alex3koval.notificationService.server.core.StringConverters;
 import ru.alex3koval.notificationService.server.exception.CustomDeserializationException;
 
 import java.time.Instant;
@@ -28,13 +27,7 @@ public class AppExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public Mono<ServerResponse> handleRuntimeException(RuntimeException ex) {
-        String errorMessage = String.format(
-            "%s\n%s",
-            ex.getMessage(),
-            StringConverters.stackTracesToString(ex.getStackTrace())
-        );
-
-        log.error(errorMessage);
+        log.error(ex.getMessage(), ex);
 
         return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }

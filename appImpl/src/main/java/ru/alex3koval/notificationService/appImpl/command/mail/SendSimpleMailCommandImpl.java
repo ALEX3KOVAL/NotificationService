@@ -4,37 +4,40 @@ import lombok.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import reactor.util.function.Tuple2;
 import ru.alex3koval.notificationService.domain.command.SendMailCommand;
 import ru.alex3koval.notificationService.domain.service.MailerService;
+import ru.alex3koval.notificationService.domain.vo.MailFormat;
+import ru.alex3koval.notificationService.domain.vo.SendingReason;
 import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
-import ru.alex3koval.notificationService.domain.vo.SendingStatus;
 
 import java.util.List;
+import java.util.Map;
 
 public class SendSimpleMailCommandImpl<T> extends SendMailCommand<T> {
-    private final String text;
-
     public SendSimpleMailCommandImpl(
         SendingRecipient recipientAddress,
         String subject,
         List<String> attachmentUrls,
-        String text,
+        Map<String, Object> model,
+        SendingReason reason,
         MailerService<T> mailerService
     ) {
         super(
             recipientAddress,
             subject,
+            reason,
             attachmentUrls,
-            mailerService
+            mailerService,
+            MailFormat.TEXT,
+            model
         );
-        this.text = text;
     }
 
     @Override
     @NonNull
     @Transactional
-    public Mono<Tuple2<SendingStatus, T>> execute() {
-        return sendMessage(text).subscribeOn(Schedulers.boundedElastic());
+    public Mono<T> execute() {
+        return sendMessage(model.get("text").toString())
+            .subscribeOn(Schedulers.boundedElastic());
     }
 }

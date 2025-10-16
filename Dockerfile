@@ -4,11 +4,9 @@ WORKDIR /app
 
 COPY build/libs .
 COPY ./.env .
-COPY build/resources/application.yml .
-COPY build/resources/"logback-spring.xml" .
+COPY settings/ .
 COPY build/notificationService.jar .
 COPY templates templates
-
 
 EXPOSE 10239
 

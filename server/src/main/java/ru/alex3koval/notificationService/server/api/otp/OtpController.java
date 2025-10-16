@@ -1,28 +1,38 @@
 package ru.alex3koval.notificationService.server.api.otp;
 
-import io.github.resilience4j.reactor.retry.RetryOperator;
 import io.github.resilience4j.retry.MaxRetriesExceededException;
 import io.github.resilience4j.retry.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import ru.alex3koval.eventingContract.vo.EventStatus;
 import ru.alex3koval.eventingImpl.factory.TransactionalOutBoxReactiveEventPusherFactory;
+import ru.alex3koval.notificationService.appImpl.command.factory.CommandFactory;
+import ru.alex3koval.notificationService.appImpl.command.factory.SendPhoneMessageCommandFactory;
 import ru.alex3koval.notificationService.appImpl.command.factory.SendTemplatedMailCommandFactory;
+import ru.alex3koval.notificationService.appImpl.factory.RetryServiceFactory;
+import ru.alex3koval.notificationService.appImpl.service.RetryService;
 import ru.alex3koval.notificationService.configuration.AppEnvironment;
+import ru.alex3koval.notificationService.domain.command.Command;
+import ru.alex3koval.notificationService.domain.command.SendPhoneMessageCommand;
 import ru.alex3koval.notificationService.domain.command.SendTemplatedMailCommand;
+import ru.alex3koval.notificationService.domain.common.event.PhoneMessageSendingHasBeenRequestedEvent;
 import ru.alex3koval.notificationService.domain.common.event.TemplatedMailSendingHasBeenRequestedEvent;
 import ru.alex3koval.notificationService.domain.common.exception.DomainException;
 import ru.alex3koval.notificationService.domain.common.vo.Topic;
 import ru.alex3koval.notificationService.server.api.otp.dto.request.SendOtpMailRequest;
+import ru.alex3koval.notificationService.server.api.otp.dto.request.SendOtpViaPhoneRequest;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @RestController
 @RequestMapping("otp")
@@ -30,53 +40,110 @@ import ru.alex3koval.notificationService.server.api.otp.dto.request.SendOtpMailR
 public class OtpController {
     private final AppEnvironment appEnv;
     private final SendTemplatedMailCommandFactory<?> sendOtpViaTemplatedMailCommandFactory;
-    private final Retry otpRetry;
+    private final SendPhoneMessageCommandFactory<?> sendOtpViaPhoneCommandFactory;
     private final TransactionalOutBoxReactiveEventPusherFactory<?> transactionalOutBoxEventPusherFactory;
+    private final RetryServiceFactory retryServiceFactory;
+    private final Retry retry;
 
     public OtpController(
         AppEnvironment appEnv,
         SendTemplatedMailCommandFactory<?> sendOtpViaTemplatedMailCommandFactory,
-        @Qualifier("otpRetry") Retry otpRetry,
-        @Lazy TransactionalOutBoxReactiveEventPusherFactory<?> transactionalOutBoxEventPusherFactory
+        SendPhoneMessageCommandFactory<?> sendOtpViaPhoneCommandFactory,
+        @Lazy TransactionalOutBoxReactiveEventPusherFactory<?> transactionalOutBoxEventPusherFactory,
+        RetryServiceFactory retryServiceFactory,
+        @Qualifier("otpRetry") Retry retry
     ) {
         this.appEnv = appEnv;
-        this.otpRetry = otpRetry;
         this.sendOtpViaTemplatedMailCommandFactory = sendOtpViaTemplatedMailCommandFactory;
         this.transactionalOutBoxEventPusherFactory = transactionalOutBoxEventPusherFactory;
+        this.sendOtpViaPhoneCommandFactory = sendOtpViaPhoneCommandFactory;
+        this.retryServiceFactory = retryServiceFactory;
+        this.retry = retry;
+    }
+
+    @PostMapping("phone")
+    Mono<ResponseEntity<?>> sendSms(@RequestBody @Validated SendOtpViaPhoneRequest body) throws DomainException {
+        SendPhoneMessageCommand.DTO dto = new SendPhoneMessageCommand.DTO(
+            body.phone(),
+            body.reason(),
+            body.text()
+        );
+
+        return sendOtp(
+            sendOtpViaPhoneCommandFactory,
+            dto,
+            new PhoneMessageSendingHasBeenRequestedEvent(
+                dto.phone(),
+                dto.reason(),
+                dto.text()
+            ),
+            Topic.PHONE_DLT,
+            uuid -> Mono.just(ResponseEntity.ok().body(uuid))
+        );
     }
 
     @PostMapping("email")
-    Mono<ServerResponse> sendMail(@RequestBody @Validated SendOtpMailRequest body) throws DomainException {
-        SendTemplatedMailCommand.DTO dto = new SendTemplatedMailCommand.DTO(
+    Mono<ResponseEntity<?>> sendMail(@RequestBody @Validated SendOtpMailRequest body) throws DomainException {
+        SendTemplatedMailCommand.DTO dto = SendTemplatedMailCommand.DTO.ofOTP(
             body.recipientAddress(),
             body.subject(),
             body.attachmentUrls(),
             appEnv.mailer().otpTemplateFolderPath(),
             appEnv.mailer().otpTemplateName(),
-            body.code().toString(),
+            body.code(),
             body.otpReason()
         );
 
-        return sendOtpViaTemplatedMailCommandFactory
+        return sendOtp(
+            sendOtpViaTemplatedMailCommandFactory,
+            dto,
+            TemplatedMailSendingHasBeenRequestedEvent.ofOTP(
+                dto.getRecipientAddress(),
+                dto.getSubject(),
+                dto.getAttachmentUrls(),
+                dto.getTemplateFolderPath(),
+                dto.getTemplateFileName(),
+                body.code(),
+                body.otpReason()
+            ),
+            Topic.EMAIL_DLT,
+            id -> Mono.just(ResponseEntity.ok().body(id))
+        );
+    }
+
+    private <R, T extends Mono<R>, COMMAND extends Command<T>, COMMAND_DTO> Mono<ResponseEntity<?>> sendOtp(
+        CommandFactory<COMMAND, COMMAND_DTO> commandFactory,
+        COMMAND_DTO dto,
+        Object dltEvent,
+        Topic dlt,
+        Function<R, Mono<ResponseEntity<?>>> mapper
+    ) throws DomainException {
+        RetryService retryService = retryServiceFactory.create(
+            retry,
+            () -> {
+                transactionalOutBoxEventPusherFactory
+                    .create()
+                    .push(
+                        dlt.getValue(),
+                        EventStatus.CREATED,
+                        dltEvent
+                    )
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .subscribe();
+                return null;
+            }
+        );
+
+        Mono<ResponseEntity<?>> mono = commandFactory
             .create(dto)
             .execute()
-            .flatMap(tuple ->
-                ServerResponse.ok().bodyValue(tuple.getT2())
+            .flatMap(mapper);
+
+        return retryService
+            .withRetry(
+                mono,
+                "sendEmail"
             )
-            .doOnError(exc -> {
-                if (exc instanceof MaxRetriesExceededException) {
-                    transactionalOutBoxEventPusherFactory
-                        .create()
-                        .push(
-                            Topic.EMAIL_DLT.name(),
-                            EventStatus.CREATED,
-                            new TemplatedMailSendingHasBeenRequestedEvent(dto)
-                        )
-                        .subscribeOn(Schedulers.boundedElastic())
-                        .subscribe();
-                }
-            })
-            .transformDeferred(RetryOperator.of(otpRetry))
             .subscribeOn(Schedulers.boundedElastic());
     }
 }

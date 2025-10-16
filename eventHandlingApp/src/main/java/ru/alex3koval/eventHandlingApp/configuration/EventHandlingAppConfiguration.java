@@ -1,8 +1,5 @@
 package ru.alex3koval.eventHandlingApp.configuration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -22,11 +19,5 @@ public class EventHandlingAppConfiguration {
         EventerPreprocessor eventerPreprocessor
     ) {
         return new EventHandlingAppRunner(eventerPreprocessor);
-    }
-
-    @Bean
-    @Qualifier("consoleLogger")
-    Logger logger() {
-        return LoggerFactory.getLogger("CONSOLE");
     }
 }

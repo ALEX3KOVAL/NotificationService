@@ -1,16 +1,22 @@
 package ru.alex3koval.notificationService.appImpl.command.factory;
 
-import ru.alex3koval.notificationService.domain.command.SendPhoneMessageCommand;
+import lombok.RequiredArgsConstructor;
 import ru.alex3koval.notificationService.appImpl.command.SendPhoneMessageCommandImpl;
+import ru.alex3koval.notificationService.appImpl.model.SmsMessageBodyProperties;
+import ru.alex3koval.notificationService.domain.command.SendPhoneMessageCommand;
 
-public class SendPhoneMessageCommandFactory<T> {
-    public SendPhoneMessageCommand<T> create(
-        String phone,
-        String text
-    ) {
+@RequiredArgsConstructor
+public class SendPhoneMessageCommandFactory<T> implements CommandFactory<SendPhoneMessageCommand<T>, SendPhoneMessageCommand.DTO> {
+    private final SmsMessageBodyProperties props;
+
+    @Override
+    public SendPhoneMessageCommand<T> create(SendPhoneMessageCommand.DTO dto) {
+        props.replaceAnchors(dto.text(), dto.reason());
+
         return new SendPhoneMessageCommandImpl<>(
-            phone,
-            text
+            dto.phone(),
+            props.getSubject(),
+            props.getBody()
         );
     }
 }

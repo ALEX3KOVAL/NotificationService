@@ -22,6 +22,8 @@ dependencies {
     implementation("alex3koval:eventing-impl:latest.release")
     implementation("alex3koval:kafka-eventer:latest.release")
 
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.19.2")
+
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 

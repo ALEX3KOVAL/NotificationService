@@ -5,7 +5,7 @@ import ru.alex3koval.notificationService.domain.repository.base.SendingRepositor
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.CreateMailSendingWDTO;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.MailSendingRDTO;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.UpdateMailSendingWDTO;
-import ru.alex3koval.notificationService.domain.vo.SendingStatus;
+import ru.alex3koval.notificationService.domain.vo.MailFormat;
 
 public abstract class MailerService<T> extends SendingService<T, CreateMailSendingWDTO, UpdateMailSendingWDTO, MailSendingRDTO<T>> {
     public MailerService(
@@ -14,9 +14,10 @@ public abstract class MailerService<T> extends SendingService<T, CreateMailSendi
         super(repository);
     }
 
-    abstract public Mono<SendingStatus> send(
+    abstract public Mono<Void> send(
         String recipientAddress,
         String subject,
-        String text
+        String text,
+        MailFormat format
     );
 }

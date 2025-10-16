@@ -28,6 +28,7 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
 
     implementation("org.springframework.ws:spring-ws-core:3.1.1")
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j:3.3.0")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

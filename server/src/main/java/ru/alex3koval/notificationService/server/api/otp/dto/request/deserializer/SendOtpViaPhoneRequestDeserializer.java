@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import jakarta.validation.constraints.NotBlank;
+import ru.alex3koval.notificationService.domain.vo.OtpReason;
 import ru.alex3koval.notificationService.domain.vo.Phone;
 import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
 import ru.alex3koval.notificationService.server.api.otp.dto.request.SendOtpViaPhoneRequest;
@@ -29,6 +30,13 @@ public class SendOtpViaPhoneRequestDeserializer extends StdDeserializer<SendOtpV
         @NotBlank
         String text = node.get("text").asText();
 
-        return new SendOtpViaPhoneRequest(phone, text);
+        @NotBlank
+        String rawOtpReason = node.get("reason").asText();
+
+        OtpReason reason = OtpReason
+            .of(rawOtpReason)
+            .orElseThrow(() -> new IllegalArgumentException("Клиент передал некорректную тип отправки OTP: " + rawOtpReason));
+
+        return new SendOtpViaPhoneRequest((Phone)phone, reason, text);
     }
 }

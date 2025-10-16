@@ -1,9 +1,11 @@
 package ru.alex3koval.notificationService.server.api.otp.dto.request;
 
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.OtpReason;
+import ru.alex3koval.notificationService.domain.vo.Phone;
 
 public record SendOtpViaPhoneRequest(
-    SendingRecipient phone,
+    Phone phone,
+    OtpReason reason,
     String text
 ) {
 }

@@ -81,17 +81,18 @@ public class TypeDependentConfiguration {
 
     @Bean
     EmailSendingRepository<Long> emailSendingRepository(
-        OrmEmailSendingRepository jpaRepository,
-        R2dbcEntityTemplate template
+        OrmEmailSendingRepository<Long> jpaRepository,
+        R2dbcEntityTemplate template,
+        ObjectMapper objectMapper
     ) {
-        return new EmailSendingRepositoryImpl<>(
-            jpaRepository,
-            template
-        );
+        return new EmailSendingRepositoryImpl<>(jpaRepository, objectMapper, template);
     }
 
     @Bean
-    PhoneSendingRepository<Long> phoneRepository(OrmPhoneSendingRepository<Long> jpaRepository) {
-        return new PhoneSendingRepositoryImpl<>(jpaRepository);
+    PhoneSendingRepository<Long> phoneRepository(
+        OrmPhoneSendingRepository<Long> jpaRepository,
+        R2dbcEntityTemplate template
+    ) {
+        return new PhoneSendingRepositoryImpl<>(jpaRepository, template);
     }
 }

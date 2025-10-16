@@ -1,8 +1,13 @@
 package ru.alex3koval.notificationService.domain.command;
 
-public interface SendPhoneMessageCommand<T> extends Command<T> {
+import reactor.core.publisher.Mono;
+import ru.alex3koval.notificationService.domain.vo.OtpReason;
+import ru.alex3koval.notificationService.domain.vo.Phone;
+
+public interface SendPhoneMessageCommand<T> extends Command<Mono<T>> {
     record DTO(
-        String phone,
+        Phone phone,
+        OtpReason reason,
         String text
     ) {
     }

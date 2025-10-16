@@ -11,18 +11,20 @@ import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
 public class ReadingSendingRecipientConverter implements Converter<String, SendingRecipient> {
     @Override
     public SendingRecipient convert(@NonNull String source) {
-        return SendingRecipient.from(source).orElseThrow(() ->
-            new ConversionFailedException(
-                TypeDescriptor.valueOf(String.class),
-                TypeDescriptor.valueOf(SendingRecipient.class),
-                source,
-                new IllegalArgumentException(
-                    String.format(
-                        "Не удалось провести конвертацию String в %s",
-                        SendingRecipient.class.getCanonicalName()
+        return SendingRecipient
+            .from(source)
+            .orElseThrow(() ->
+                new ConversionFailedException(
+                    TypeDescriptor.valueOf(String.class),
+                    TypeDescriptor.valueOf(SendingRecipient.class),
+                    source,
+                    new IllegalArgumentException(
+                        String.format(
+                            "Не удалось провести конвертацию String в %s",
+                            SendingRecipient.class.getCanonicalName()
+                        )
                     )
                 )
-            )
-        );
+            );
     }
 }

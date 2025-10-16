@@ -1,9 +1,14 @@
 package ru.alex3koval.notificationService.domain.vo;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.util.Optional;
 
+@RequiredArgsConstructor
+@Getter
 public abstract class SendingRecipient {
-    public abstract String getValue();
+    private final String value;
 
     public static Optional<SendingRecipient> from(String value) {
         Optional<SendingRecipient> phoneOptional = Phone.of(value);

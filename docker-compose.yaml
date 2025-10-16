@@ -17,8 +17,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "10251:${APP_SERVER_PORT}"
-    depends_on:
-      - notification_service_db
 
   eventer_app:
     container_name: eventer_app
