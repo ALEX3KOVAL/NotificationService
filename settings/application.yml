@@ -102,7 +102,6 @@ spring:
     r2dbc:
       repositories:
         enabled: true
-  #    url: jdbc:postgresql://localhost:5436/auth_service
 
 resilience4j:
   retry:
