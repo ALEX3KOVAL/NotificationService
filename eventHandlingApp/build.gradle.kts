@@ -17,12 +17,14 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":configuration"))
     implementation(project(":appImpl"))
+    implementation(project(":common"))
 
     implementation("alex3koval:eventing-contract:latest.release")
     implementation("alex3koval:eventing-impl:latest.release")
     implementation("alex3koval:kafka-eventer:latest.release")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.19.2")
+    implementation("io.projectreactor:reactor-core:3.4.40")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

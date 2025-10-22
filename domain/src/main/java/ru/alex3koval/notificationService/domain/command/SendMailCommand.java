@@ -70,7 +70,6 @@ public abstract class SendMailCommand<T> implements Command<Mono<T>> {
         private final String subject;
         private final List<String> attachmentUrls;
         private final SendingReason reason;
-        private OtpReason otpReason;
         private final Map<String, Object> model;
         private final MailFormat format;
 
@@ -86,24 +85,6 @@ public abstract class SendMailCommand<T> implements Command<Mono<T>> {
             this.subject = subject;
             this.attachmentUrls = attachmentUrls;
             this.reason = reason;
-            this.format = format;
-            this.model = model;
-        }
-
-        protected DTO(
-            SendingRecipient recipientAddress,
-            String subject,
-            List<String> attachmentUrls,
-            SendingReason reason,
-            OtpReason otpReason,
-            MailFormat format,
-            Map<String, Object> model
-        ) {
-            this.recipientAddress = recipientAddress;
-            this.subject = subject;
-            this.attachmentUrls = attachmentUrls;
-            this.reason = reason;
-            this.otpReason = otpReason;
             this.format = format;
             this.model = model;
         }

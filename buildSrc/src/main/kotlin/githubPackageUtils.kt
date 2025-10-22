@@ -1,3 +1,4 @@
+import loadGithubPackage
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.authentication.http.BasicAuthentication
 import org.gradle.kotlin.dsl.create
@@ -9,7 +10,7 @@ private fun RepositoryHandler.loadGithubPackage(repo: String) {
         url = URI("https://maven.pkg.github.com/ALEX3KOVAL/$repo")
         credentials {
             username = "ALEX3KOVAL"
-            password = System.getenv("GITHUB_TOKEN")
+            password = "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"
         }
         authentication {
             create<BasicAuthentication>("basic")
@@ -28,6 +29,14 @@ private fun RepositoryHandler.loadGithubPackage(repo: String) {
 
 fun RepositoryHandler.loadEventingGithubPackages() {
     listOf("eventingContract", "eventingImpl").forEach(::loadGithubPackage)
+}
+
+fun RepositoryHandler.loadEventingContractGithubPackage() {
+    loadGithubPackage("eventingContract")
+}
+
+fun RepositoryHandler.loadEventingImplGithubPackage() {
+    loadGithubPackage("eventingImpl")
 }
 
 fun RepositoryHandler.loadTransactionalOutBoxGitHubPackage() {

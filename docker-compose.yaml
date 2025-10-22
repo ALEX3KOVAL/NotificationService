@@ -18,6 +18,22 @@ services:
     ports:
       - "10251:${APP_SERVER_PORT}"
 
+  event_producer_app:
+    container_name: event_producer_app
+    platform: linux/amd64
+    networks:
+      - alex3koval-local
+    env_file:
+      - .env
+    build:
+      args:
+        APP_CDC_OFFSET_STORAGE_FILE_FILENAME: ${APP_CDC_OFFSET_STORAGE_FILE_FILENAME}
+        APP_CDC_OFFSET_STORAGE_FILE_FOLDER_PATH: ${APP_CDC_OFFSET_STORAGE_FILE_FOLDER_PATH}
+      context: .
+      dockerfile: EventProducerApp.Dockerfile
+    depends_on:
+      - notification_service_db
+
   eventer_app:
     container_name: eventer_app
     platform: linux/amd64
@@ -28,8 +44,6 @@ services:
     build:
       context: .
       dockerfile: EventerApp.Dockerfile
-    ports:
-      - "10252:${APP_SERVER_PORT}"
     depends_on:
       - notification_service_db
 
@@ -65,9 +79,9 @@ services:
     env_file:
       - .env
     environment:
-      FLYWAY_URL: $POSTGRES_JDBC_URL
-      FLYWAY_USER: $POSTGRES_USER
-      FLYWAY_PASSWORD: $POSTGRES_PASSWORD
+      FLYWAY_URL: ${APP_POSTGRES_JDBC_URL}
+      FLYWAY_USER: ${APP_POSTGRES_USER}
+      FLYWAY_PASSWORD: ${APP_POSTGRES_PASSWORD}
       FLYWAY_OUT_OF_ORDER: true
     volumes:
       - ./migrations:/flyway/sql

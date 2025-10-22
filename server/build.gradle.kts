@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     implementation(project(":domain"))
-    implementation("alex3koval:eventing-contract:1.13.12")
+    implementation("alex3koval:eventing-contract:latest.release")
     implementation("alex3koval:eventing-impl:latest.release")
     implementation(project(":configuration"))
     implementation(project(":appImpl"))

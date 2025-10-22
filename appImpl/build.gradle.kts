@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     implementation(project(":domain"))
-    implementation("alex3koval:eventing-contract:latest.release")
+     implementation("alex3koval:eventing-contract:1.13.20")
 
     implementation("io.projectreactor:reactor-core:3.4.40")
 

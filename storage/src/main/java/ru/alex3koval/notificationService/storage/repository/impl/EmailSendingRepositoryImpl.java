@@ -16,6 +16,8 @@ import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.Upda
 import ru.alex3koval.notificationService.storage.entity.sending.EmailSending;
 import ru.alex3koval.notificationService.storage.repository.orm.OrmEmailSendingRepository;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +54,11 @@ public class EmailSendingRepositoryImpl<T> implements EmailSendingRepository<T> 
         if (fieldsForUpdating.isEmpty()) {
             return Mono.just(id);
         }
+
+        fieldsForUpdating.put(
+            SqlIdentifier.quoted("updated_at"),
+            LocalDateTime.now(ZoneOffset.UTC)
+        );
 
         Query query = Query.query(
             Criteria.where("id").is(id)

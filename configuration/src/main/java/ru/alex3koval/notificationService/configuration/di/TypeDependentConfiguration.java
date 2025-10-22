@@ -10,14 +10,15 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import reactor.core.publisher.Mono;
 import ru.alex3koval.eventingContract.dto.CreateEventWDTO;
-import ru.alex3koval.eventingImpl.factory.TransactionalOutBoxReactiveEventPusherFactory;
 import ru.alex3koval.notificationService.appImpl.service.MailerServiceImpl;
 import ru.alex3koval.notificationService.appImpl.service.PhoneServiceImpl;
 import ru.alex3koval.notificationService.configuration.AppEnvironment;
+import ru.alex3koval.notificationService.domain.common.repository.EventRepository;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.EmailSendingRepository;
 import ru.alex3koval.notificationService.domain.repository.sending.phone.PhoneSendingRepository;
 import ru.alex3koval.notificationService.domain.service.MailerService;
 import ru.alex3koval.notificationService.domain.service.PhoneService;
+import ru.alex3koval.eventingImpl.factory.TransactionalOutBoxReactiveEventPusherFactory;
 import ru.alex3koval.notificationService.storage.repository.impl.EmailSendingRepositoryImpl;
 import ru.alex3koval.notificationService.storage.repository.impl.PhoneSendingRepositoryImpl;
 import ru.alex3koval.notificationService.storage.repository.impl.TransactionalOutboxRepositoryImpl;
@@ -44,20 +45,20 @@ public class TypeDependentConfiguration {
         );
     }
 
-    @Bean
-    @Qualifier("reactiveTransactionalOutBoxPushingFunction")
+    @Bean("reactiveTransactionalOutBoxPushingFunction")
     @SneakyThrows
     Function<CreateEventWDTO, Mono<Long>> pushInDbFunction(
-        TransactionalOutboxRepositoryImpl<Long> transactionalOutboxRepository
+        EventRepository<Long> transactionalOutboxRepository
     ) {
         return transactionalOutboxRepository::add;
     }
 
     @Bean
-    TransactionalOutboxRepositoryImpl<Long> transactionalOutboxRepository(
-        OrmEventRepository<Long> ormRepository
+    EventRepository<Long> transactionalOutboxRepository(
+        OrmEventRepository<Long> ormRepository,
+        R2dbcEntityTemplate template
     ) {
-        return new TransactionalOutboxRepositoryImpl<>(ormRepository);
+        return new TransactionalOutboxRepositoryImpl<>(ormRepository, template);
     }
 
     @Bean

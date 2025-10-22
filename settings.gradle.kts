@@ -10,3 +10,5 @@ include("storage")
 
 include("eventProducerApp")
 include("eventHandlingApp")
+
+include("common")

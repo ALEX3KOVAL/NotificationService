@@ -7,39 +7,54 @@ app:
   eventer:
     topic-params: [
       {
-        topic: "phoneVerification",
-        group_id: "verification"
+        topic: "email",
+        group_id: "emailVerification"
       },
       {
-        topic: "emailVerification",
-        group_id: "verification"
+        topic: "phone",
+        group_id: "phoneVerification"
+      },
+      {
+        topic: "email.DLT",
+        group_id: "emailDltVerification"
+      },
+      {
+        topic: "phone.DLT",
+        group_id: "phoneDltVerification"
       }
     ]
+  retry: {
+    otp: {
+      maxAttempts: 3,
+      minDelay: 500,
+      jitter: 0.5
+    }
+  }
   sms:
     otp-template-json-file-path: ${APP_SMS_OTP_TEMPLATE_JSON_FILE_PATH}
   cdc:
-    publication-name: ""
-    slot-name: ""
-    name: ""
-    plugin-name: ""
+    publication-name: "transactional_outbox_pub"
+    slot-name: "debezium_notification_service_slot"
+    name: "postgres-transactional-outbox-connector"
+    plugin-name: "pgoutput"
     offset-storage-class: "org.apache.kafka.connect.storage.FileOffsetBackingStore"
-    offset-storage-file-name: ""
-    offset-flush-interval-millis: 12345
-    db-server-name: ""
-    db-host: ""
-    db-port: 123456
-    db-user: ""
-    db-password: ""
-    db-name: ""
-    table-white-list: ""
-    column-include-list: ""
+    offset-storage-file-name: ${APP_CDC_OFFSET_STORAGE_FILE_FILENAME}
+    offset-storage-file-folder-path: ${APP_CDC_OFFSET_STORAGE_FILE_FOLDER_PATH}
+    offset-flush-interval-millis: 60000
+    topic-prefix: ${APP_CDC_TOPIC_PREFIX}
+    db-host: ${APP_POSTGRES_HOSTNAME}
+    db-port: ${APP_POSTGRES_PORT}
+    db-user: ${APP_POSTGRES_USER}
+    db-password: ${APP_POSTGRES_PASSWORD}
+    db-name: ${APP_POSTGRES_DB}
+    schema-include-list: "public"
+    table-include-list: "public.transactional_outbox"
+    column-include-list: "public.transactional_outbox.id,public.transactional_outbox.name,public.transactional_outbox.topic,public.transactional_outbox.json,public.transactional_outbox.status,public.transactional_outbox.created_at"
 
 server:
   port: ${APP_SERVER_PORT}
 
 spring:
-  main:
-    web-application-type: reactive
   mail:
     host: smtp.yandex.ru
     port: 465
@@ -59,7 +74,9 @@ spring:
       auto-offset-reset: earliest
       properties:
         spring.json.trusted.packages.packages: "*"
-      enable-auto-commit: false
+      heartbeat-interval: 15000
+      session-timeout: 45000
+      max-poll-interval: 300000
     admin:
       auto-create: off
       properties:
@@ -72,9 +89,9 @@ spring:
     check-template-location: false
     suffix: ".html"
   r2dbc:
-    url: ${POSTGRES_R2DBC_URL}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: ${APP_POSTGRES_R2DBC_URL}
+    username: ${APP_POSTGRES_USER}
+    password: ${APP_POSTGRES_PASSWORD}
     pool:
       enabled: true
       initial-size: 5

@@ -1,18 +1,15 @@
 package ru.alex3koval.notificationService.appImpl.factory;
 
-import io.github.resilience4j.retry.Retry;
+import lombok.RequiredArgsConstructor;
+import ru.alex3koval.notificationService.appImpl.model.RetryConfigurations;
 import ru.alex3koval.notificationService.appImpl.service.RetryService;
 
-import java.util.function.Supplier;
-
+@RequiredArgsConstructor
 public class RetryServiceFactory {
-    public RetryService create(
-        Retry retry,
-        Supplier<Void> onAllRetriesFailed
-    ) {
-        return new RetryService(
-            retry,
-            onAllRetriesFailed
-        );
+    private final RetryConfigurations retryConfigs;
+
+    public RetryService create(String retryName) {
+
+        return new RetryService(retryConfigs.getConfig(retryName));
     }
 }

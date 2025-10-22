@@ -3,18 +3,19 @@ package ru.alex3koval.notificationService.appImpl.command.mail;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.reactive.result.view.freemarker.FreeMarkerConfig;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import ru.alex3koval.notificationService.appImpl.core.StringConverters;
 import ru.alex3koval.notificationService.domain.command.SendTemplatedMailCommand;
 import ru.alex3koval.notificationService.domain.common.exception.DomainException;
 import ru.alex3koval.notificationService.domain.service.MailerService;
 
 import java.io.IOException;
 
+@Slf4j
 public class SendTemplatedMailCommandImpl<T> extends SendTemplatedMailCommand<T> {
     private final FreeMarkerConfig freemarkerClassLoaderConfig;
 
@@ -35,30 +36,24 @@ public class SendTemplatedMailCommandImpl<T> extends SendTemplatedMailCommand<T>
             Template template = freemarkerClassLoaderConfig.getConfiguration().getTemplate(templateFileName);
             String messageText = FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
 
-            return sendMessage(messageText).subscribeOn(Schedulers.boundedElastic());
-        } catch (IOException e) {
-            String stackTraceWithMessage = StringConverters.stackTracesToString(e.getStackTrace());
-
+            return sendMessage(messageText);
+        } catch (IOException exc) {
             throw new DomainException(
                 String.format(
-                    "Ошибка получения шаблона %s/%s\n%s\n%s",
+                    "Ошибка получения шаблона %s/%s",
                     templateFolderPath,
-                    templateFileName,
-                    e.getMessage(),
-                    stackTraceWithMessage
-                )
+                    templateFileName
+                ),
+                exc
             );
-        } catch (TemplateException e) {
-            String stackTraceWithMessage = StringConverters.stackTracesToString(e.getStackTrace());
-
+        } catch (TemplateException exc) {
             throw new DomainException(
                 String.format(
-                    "Ошибка обработки шаблона %s/%s\n%s\n%s",
+                    "Ошибка обработки шаблона %s/%s",
                     templateFolderPath,
-                    templateFileName,
-                    e.getMessage(),
-                    stackTraceWithMessage
-                )
+                    templateFileName
+                ),
+                exc
             );
         }
     }

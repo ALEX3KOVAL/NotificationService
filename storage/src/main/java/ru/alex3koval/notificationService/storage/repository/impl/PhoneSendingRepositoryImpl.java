@@ -15,6 +15,8 @@ import ru.alex3koval.notificationService.storage.entity.sending.EmailSending;
 import ru.alex3koval.notificationService.storage.entity.sending.PhoneSending;
 import ru.alex3koval.notificationService.storage.repository.orm.OrmPhoneSendingRepository;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,12 +51,17 @@ public class PhoneSendingRepositoryImpl<T> implements PhoneSendingRepository<T> 
             return Mono.just(id);
         }
 
+        fieldsForUpdating.put(
+            SqlIdentifier.quoted("updated_at"),
+            LocalDateTime.now(ZoneOffset.UTC)
+        );
+
         Query query = Query.query(
             Criteria.where("id").is(id)
         );
 
         return template
-            .update(EmailSending.class)
+            .update(PhoneSending.class)
             .matching(query)
             .apply(Update.from(fieldsForUpdating))
             .thenReturn(id);

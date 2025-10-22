@@ -3,7 +3,6 @@ package ru.alex3koval.notificationService.appImpl.service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import reactor.core.publisher.Mono;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.EmailSendingRepository;
@@ -32,20 +31,20 @@ public class MailerServiceImpl<T> extends MailerService<T> {
         String text,
         MailFormat format
     ) {
-        return Mono.error(new RuntimeException("AJAJJAJAJAJAJJAJAJAJA"));
+        //return Mono.error(new RuntimeException("AJAJJAJAJAJAJJAJAJAJA"));
 
-//        return Mono
-//            .fromCallable(() -> {
-//                MimeMessage message = createMessage(
-//                    recipientAddress,
-//                    subject,
-//                    text,
-//                    format
-//                );
-//
-//                mailSender.send(message);
-//                return null;
-//            });
+        return Mono
+            .fromCallable(() -> {
+                MimeMessage message = createMessage(
+                    recipientAddress,
+                    subject,
+                    text,
+                    format
+                );
+
+                mailSender.send(message);
+                return null;
+            });
     }
 
     private MimeMessage createMessage(
@@ -56,17 +55,6 @@ public class MailerServiceImpl<T> extends MailerService<T> {
     ) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-        JavaMailSenderImpl impl = (JavaMailSenderImpl) mailSender;
-
-        System.out.println("HOST --- " + impl.getHost());
-        System.out.println("PORT --- " + impl.getPort());
-        System.out.println("PROTOCOL --- " + impl.getProtocol());
-        System.out.println("USERNAME --- " + impl.getUsername());
-
-        System.out.println("SENDER ADDRESS --- " + senderAddress);
-        System.out.println("RECIPIENT --- " + recipientAddress);
-        System.out.println("SUBJECT --- " + subject);
-        System.out.println("TEXT --- " + text);
 
         helper.setFrom(senderAddress);
         helper.setTo(recipientAddress);

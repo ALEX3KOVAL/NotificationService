@@ -12,7 +12,7 @@ public class TemplatedMailSendingHasBeenRequestedEventSerializer extends JsonSer
     public void serialize(TemplatedMailSendingHasBeenRequestedEvent value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
 
-        gen.writeObjectField("sendingRecipient", value.getRecipientAddress());
+        gen.writeObjectField("recipientAddress", value.getRecipientAddress());
         gen.writeObjectField("subject", value.getSubject());
 
         gen.writeArrayFieldStart("attachmentUrls");
@@ -21,12 +21,16 @@ public class TemplatedMailSendingHasBeenRequestedEventSerializer extends JsonSer
         }
         gen.writeEndArray();
 
+        gen.writeObjectField("mailFormat", value.getMailFormat());
+
         gen.writeStringField("otpTemplateFolderPath", value.getOtpTemplateFolderPath());
         gen.writeStringField("otpTemplateName", value.getOtpTemplateName());
 
         gen.writeObjectField("sendingReason", value.getSendingReason());
         gen.writeObjectField("otpReason", value.getOtpReason());
         gen.writeNumberField("code", value.getCode());
+
+        gen.writeObjectField("model", value.getModel());
 
         gen.writeEndObject();
     }

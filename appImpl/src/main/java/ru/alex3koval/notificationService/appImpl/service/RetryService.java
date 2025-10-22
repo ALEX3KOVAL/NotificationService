@@ -1,84 +1,49 @@
 package ru.alex3koval.notificationService.appImpl.service;
 
-import io.github.resilience4j.reactor.retry.RetryOperator;
-import io.github.resilience4j.retry.Retry;
-import io.github.resilience4j.retry.event.RetryOnErrorEvent;
-import io.github.resilience4j.retry.event.RetryOnRetryEvent;
-import io.github.resilience4j.retry.event.RetryOnSuccessEvent;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
+import reactor.util.retry.RetryBackoffSpec;
+import ru.alex3koval.notificationService.appImpl.model.RetryConfigurations;
 
-import java.util.function.Supplier;
+import java.time.Duration;
 
+@RequiredArgsConstructor
 public class RetryService {
-    private final Retry retry;
-
-    public RetryService(Retry retry, Supplier<Void> onAllRetriesFailed) {
-        this.retry = retry;
-        setupAdvancedEventHandlers(onAllRetriesFailed);
-    }
-
-    private void setupAdvancedEventHandlers(Supplier<Void> onAllRetriesFailed) {
-        Retry.EventPublisher eventPublisher = retry.getEventPublisher();
-
-        eventPublisher.onRetry(event -> {
-            // Логируем каждую попытку retry
-            logRetryAttempt(event);
-
-            // Отправляем уведомление
-            sendRetryAlert(event);
-        });
-
-        // Действия после успешного retry
-        eventPublisher.onSuccess(this::handleRetrySuccess);
-
-        // Действия после исчерпания всех попыток
-        eventPublisher.onError(event -> {
-            onAllRetriesFailed.get();
-        });
-    }
+    private final RetryConfigurations.Props props;
 
     public <T> Mono<T> withRetry(
         Mono<T> mono,
-        String operationName
+        Runnable onAllRetriesFailed
     ) {
-        System.out.println("PRINTANI TUPA --- " + retry);
         return mono
-            .transformDeferred(RetryOperator.of(retry))
-            .doOnSubscribe(subscription -> {
-                System.out.println("🚀 Starting operation: " + operationName);
-            })
-            .doOnSuccess(result -> {
-                System.out.println("✅ Operation completed: " + operationName);
-            });
+            .retryWhen(
+                withOnRetryExhaustedThrow(buildBaseRetrySpec(), onAllRetriesFailed)
+            );
     }
 
-    private void logRetryAttempt(RetryOnRetryEvent event) {
-        System.out.printf("🔄 Retry #%d for %s. Wait time: %dms%n",
-            event.getNumberOfRetryAttempts(),
-            event.getName(),
-            event.getWaitInterval().toMillis());
+    public <T> Mono<T> withRetry(Mono<T> mono) {
+        return mono
+            .retryWhen(
+                withOnRetryExhaustedThrow(buildBaseRetrySpec())
+            );
     }
 
-    private void sendRetryAlert(RetryOnRetryEvent event) {
-        // Отправляем alert в систему мониторинга
-        System.out.println("📢 Retry alert: " + event.getName() +
-            " attempt #" + event.getNumberOfRetryAttempts());
+    private RetryBackoffSpec buildBaseRetrySpec() {
+        return Retry
+            .backoff(props.maxAttempts(), Duration.ofMillis(props.minDelay()))
+            .jitter(props.jitter());
     }
 
-    private void handleRetrySuccess(RetryOnSuccessEvent event) {
-        System.out.println("🎉 Retry succeeded for " + event.getName() +
-            " after " + event.getNumberOfRetryAttempts() + " attempts");
+    private RetryBackoffSpec withOnRetryExhaustedThrow(RetryBackoffSpec baseRetry, Runnable onAllRetriesFailed) {
+        return baseRetry.onRetryExhaustedThrow((spec, signal) -> {
+            onAllRetriesFailed.run();
+            return signal.failure();
+        });
     }
 
-    private void handleRetryExhausted(RetryOnErrorEvent event) {
-        System.err.println("💥 Retry exhausted for " + event.getName() +
-            " after " + event.getNumberOfRetryAttempts() + " attempts");
-
-        // Можно отправить critical alert
-        sendCriticalAlert(event);
-    }
-
-    private void sendCriticalAlert(RetryOnErrorEvent event) {
-        System.out.println("🚨 CRITICAL: All retries failed for " + event.getName());
+    private RetryBackoffSpec withOnRetryExhaustedThrow(RetryBackoffSpec baseRetry) {
+        return baseRetry.onRetryExhaustedThrow((spec, signal) -> signal.failure());
     }
 }

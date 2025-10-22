@@ -1,6 +1,7 @@
 package ru.alex3koval.notificationService.server.api.otp.dto.request.deserializer;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -19,24 +20,23 @@ public class SendOtpViaPhoneRequestDeserializer extends StdDeserializer<SendOtpV
 
     @Override
     public SendOtpViaPhoneRequest deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        JsonNode node = p.getCodec().readTree(p);
+        ObjectCodec oc = p.getCodec();
+        JsonNode node = oc.readTree(p);
 
-        String rawPhone = node.get("phone").asText();
-
-        SendingRecipient phone = Phone
-            .of(rawPhone)
-            .orElseThrow(() -> new IllegalArgumentException("Клиент передал некорректный номер телефона: " + rawPhone));
+        SendingRecipient phone = ctxt.readValue(
+            node.get("phone").traverse(oc),
+            SendingRecipient.class
+        );
 
         @NotBlank
         String text = node.get("text").asText();
 
-        @NotBlank
-        String rawOtpReason = node.get("reason").asText();
+        OtpReason reason = ctxt.readValue(
+            node.get("reason").traverse(oc),
+            OtpReason.class
+        );
 
-        OtpReason reason = OtpReason
-            .of(rawOtpReason)
-            .orElseThrow(() -> new IllegalArgumentException("Клиент передал некорректную тип отправки OTP: " + rawOtpReason));
 
-        return new SendOtpViaPhoneRequest((Phone)phone, reason, text);
+        return new SendOtpViaPhoneRequest((Phone) phone, reason, text);
     }
 }

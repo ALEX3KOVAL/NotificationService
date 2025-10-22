@@ -1,11 +1,13 @@
 package ru.alex3koval.notificationService.domain.common.event;
 
 import lombok.Getter;
+import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.OtpReason;
 import ru.alex3koval.notificationService.domain.vo.SendingReason;
 import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 public class TemplatedMailSendingHasBeenRequestedEvent {
@@ -14,7 +16,9 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
     private final List<String> attachmentUrls;
     private final String otpTemplateFolderPath;
     private final String otpTemplateName;
+    private final MailFormat mailFormat;
     private final SendingReason sendingReason;
+    private final Map<String, Object> model;
     private OtpReason otpReason;
     private Short code;
 
@@ -24,7 +28,9 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
         List<String> attachmentUrls,
         String otpTemplateFolderPath,
         String otpTemplateName,
-        SendingReason sendingReason
+        SendingReason sendingReason,
+        MailFormat mailFormat,
+        Map<String, Object> model
     ) {
         this.recipientAddress = recipientAddress;
         this.subject = subject;
@@ -32,6 +38,8 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
         this.otpTemplateFolderPath = otpTemplateFolderPath;
         this.otpTemplateName = otpTemplateName;
         this.sendingReason = sendingReason;
+        this.mailFormat = mailFormat;
+        this.model = model;
     }
 
     private TemplatedMailSendingHasBeenRequestedEvent(
@@ -42,7 +50,9 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
         String otpTemplateName,
         Short code,
         SendingReason sendingReason,
-        OtpReason otpReason
+        OtpReason otpReason,
+        MailFormat mailFormat,
+        Map<String, Object> model
     ) {
         this(
             recipientAddress,
@@ -50,7 +60,9 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
             attachmentUrls,
             otpTemplateFolderPath,
             otpTemplateName,
-            sendingReason
+            sendingReason,
+            mailFormat,
+            model
         );
         this.otpReason = otpReason;
         this.code = code;
@@ -61,7 +73,9 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
         String subject,
         List<String> attachmentUrls,
         String otpTemplateFolderPath,
-        String otpTemplateName
+        String otpTemplateName,
+        MailFormat mailFormat,
+        Map<String, Object> model
     ) {
         return new TemplatedMailSendingHasBeenRequestedEvent(
             recipientAddress,
@@ -69,7 +83,9 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
             attachmentUrls,
             otpTemplateFolderPath,
             otpTemplateName,
-            SendingReason.OTP
+            SendingReason.OTHER,
+            mailFormat,
+            model
         );
     }
 
@@ -81,7 +97,9 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
         String otpTemplateName,
         Short code,
         OtpReason otpReason,
-        SendingReason sendingReason
+        SendingReason sendingReason,
+        MailFormat mailFormat,
+        Map<String, Object> model
     ) {
         if (sendingReason.isOTP()) {
             return ofOTP(
@@ -91,7 +109,9 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
                 otpTemplateFolderPath,
                 otpTemplateName,
                 code,
-                otpReason
+                otpReason,
+                mailFormat,
+                model
             );
         }
 
@@ -100,7 +120,9 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
             subject,
             attachmentUrls,
             otpTemplateFolderPath,
-            otpTemplateName
+            otpTemplateName,
+            mailFormat,
+            model
         );
     }
 
@@ -111,7 +133,9 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
         String otpTemplateFolderPath,
         String otpTemplateName,
         Short code,
-        OtpReason otpReason
+        OtpReason otpReason,
+        MailFormat mailFormat,
+        Map<String, Object> model
     ) {
         return new TemplatedMailSendingHasBeenRequestedEvent(
             recipientAddress,
@@ -121,7 +145,9 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
             otpTemplateName,
             code,
             SendingReason.OTP,
-            otpReason
+            otpReason,
+            mailFormat,
+            model
         );
     }
 }

@@ -37,7 +37,7 @@ public abstract class SendTemplatedMailCommand<T> extends SendMailCommand<T> {
         private final String templateFolderPath;
         private final String templateFileName;
 
-        private DTO(
+        public DTO(
             SendingRecipient recipientAddress,
             String subject,
             List<String> attachmentUrls,

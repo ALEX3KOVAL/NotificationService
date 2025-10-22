@@ -1,6 +1,5 @@
 package ru.alex3koval.notificationService.storage;
 
-import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,10 +42,5 @@ public class StorageConfiguration {
         );
 
         return R2dbcCustomConversions.of(PostgresDialect.INSTANCE, converters);
-    }
-
-    @Bean
-    DbCheckAppRunner dbCheckAppRunner(ConnectionFactory connectionFactory) {
-        return new DbCheckAppRunner(connectionFactory);
     }
 }

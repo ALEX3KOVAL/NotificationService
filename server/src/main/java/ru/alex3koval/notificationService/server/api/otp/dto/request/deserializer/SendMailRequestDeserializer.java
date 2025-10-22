@@ -1,15 +1,15 @@
 package ru.alex3koval.notificationService.server.api.otp.dto.request.deserializer;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import jakarta.validation.constraints.NotBlank;
-import ru.alex3koval.notificationService.domain.vo.Email;
+import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.OtpReason;
 import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
 import ru.alex3koval.notificationService.server.api.otp.dto.request.SendOtpMailRequest;
-import ru.alex3koval.notificationService.server.exception.CustomDeserializationException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -23,27 +23,26 @@ public class SendMailRequestDeserializer extends StdDeserializer<SendOtpMailRequ
 
     @Override
     public SendOtpMailRequest deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        JsonNode node = p.getCodec().readTree(p);
+        ObjectCodec oc = p.getCodec();
+        JsonNode node = oc.readTree(p);
+        MailFormat mailFormat = MailFormat.HTML;
 
-        String rawRecipientEmail = node.get("recipientAddress").asText();
+        SendingRecipient recipientEmail = ctxt.readValue(
+            node.get("recipientAddress").traverse(oc),
+            SendingRecipient.class
+        );
 
-        SendingRecipient recipientEmail = Email
-            .of(rawRecipientEmail)
-            .orElseThrow(() -> new CustomDeserializationException(
-                "Клиент передал некорректный email: " + rawRecipientEmail,
-                "recipientAddress",
-                p.currentLocation()
-            ));
+        OtpReason otpReason = ctxt.readValue(
+            node.get("reason").traverse(oc),
+            OtpReason.class
+        );
 
-        String rawOtpReason = node.get("reason").asText();
-
-        OtpReason otpReason = OtpReason
-            .of(rawOtpReason)
-            .orElseThrow(() -> new CustomDeserializationException(
-                "Клиент передал некорректный тип OTP: " + rawOtpReason,
-                "mailType",
-                p.currentLocation()
-            ));
+        if (node.has("mailFormat")) {
+            mailFormat = ctxt.readValue(
+                node.get("mailFormat").traverse(oc),
+                MailFormat.class
+            );
+        }
 
         @NotBlank
         String subject = node.get("subject").asText();
@@ -63,7 +62,8 @@ public class SendMailRequestDeserializer extends StdDeserializer<SendOtpMailRequ
             subject,
             code,
             otpReason,
-            attachmentUrls
+            attachmentUrls,
+            mailFormat
         );
     }
 }

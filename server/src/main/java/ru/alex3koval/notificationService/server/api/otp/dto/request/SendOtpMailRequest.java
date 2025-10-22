@@ -1,5 +1,6 @@
 package ru.alex3koval.notificationService.server.api.otp.dto.request;
 
+import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.OtpReason;
 import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
 
@@ -10,6 +11,7 @@ public record SendOtpMailRequest(
     String subject,
     Short code,
     OtpReason otpReason,
-    List<String> attachmentUrls
+    List<String> attachmentUrls,
+    MailFormat mailFormat
 ) {
 }

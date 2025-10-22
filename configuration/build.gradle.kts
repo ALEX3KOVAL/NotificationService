@@ -25,6 +25,7 @@ dependencies {
     implementation(project(":appImpl"))
     implementation(project(":storage"))
 
+    implementation("org.springframework.boot:spring-boot-starter-freemarker")
     implementation("org.springframework.kafka:spring-kafka")
 
     implementation("org.springframework.ws:spring-ws-core:3.1.1")

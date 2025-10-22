@@ -14,8 +14,7 @@ import ru.alex3koval.notificationService.server.core.RegisterHttpBodySerializati
 
 @Configuration
 public class HttpBodyDeserializerConfiguration {
-    @Bean
-    @Qualifier("httpBodyDeserializerModule")
+    @Bean("httpBodyDeserializerModule")
     Module httpBodyDeserializers() {
         SimpleModule module = new SimpleModule();
 

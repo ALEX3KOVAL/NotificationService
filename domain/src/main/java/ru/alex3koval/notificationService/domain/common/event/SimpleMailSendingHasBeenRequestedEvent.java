@@ -1,13 +1,111 @@
 package ru.alex3koval.notificationService.domain.common.event;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import ru.alex3koval.notificationService.domain.vo.MailFormat;
+import ru.alex3koval.notificationService.domain.vo.OtpReason;
+import ru.alex3koval.notificationService.domain.vo.SendingReason;
+import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
 
-@AllArgsConstructor
-@NoArgsConstructor(force = true)
+import java.util.List;
+
 @Getter
 public class SimpleMailSendingHasBeenRequestedEvent {
-    private final String s;
-    private final String k;
+    private final SendingRecipient recipientAddress;
+    private final String subject;
+    private final List<String> attachmentUrls;
+    private final MailFormat mailFormat;
+    private final SendingReason sendingReason;
+    private final String text;
+    private OtpReason otpReason;
+
+    private SimpleMailSendingHasBeenRequestedEvent(
+        SendingRecipient recipientAddress,
+        String subject,
+        List<String> attachmentUrls,
+        SendingReason sendingReason,
+        String text
+    ) {
+        this.recipientAddress = recipientAddress;
+        this.subject = subject;
+        this.attachmentUrls = attachmentUrls;
+        this.sendingReason = sendingReason;
+        this.mailFormat = MailFormat.TEXT;
+        this.text = text;
+    }
+
+    private SimpleMailSendingHasBeenRequestedEvent(
+        SendingRecipient recipientAddress,
+        String subject,
+        List<String> attachmentUrls,
+        SendingReason sendingReason,
+        OtpReason otpReason,
+        String text
+    ) {
+        this(
+            recipientAddress,
+            subject,
+            attachmentUrls,
+            sendingReason,
+            text
+        );
+        this.otpReason = otpReason;
+    }
+
+    public static SimpleMailSendingHasBeenRequestedEvent ofBase(
+        SendingRecipient recipientAddress,
+        String subject,
+        List<String> attachmentUrls,
+        String text
+    ) {
+        return new SimpleMailSendingHasBeenRequestedEvent(
+            recipientAddress,
+            subject,
+            attachmentUrls,
+            SendingReason.OTHER,
+            text
+        );
+    }
+
+    public static SimpleMailSendingHasBeenRequestedEvent of(
+        SendingRecipient recipientAddress,
+        String subject,
+        List<String> attachmentUrls,
+        OtpReason otpReason,
+        SendingReason sendingReason,
+        String text
+    ) {
+        if (sendingReason.isOTP()) {
+            return ofOTP(
+                recipientAddress,
+                subject,
+                attachmentUrls,
+                otpReason,
+                text
+            );
+        }
+
+        return ofBase(
+            recipientAddress,
+            subject,
+            attachmentUrls,
+            text
+        );
+    }
+
+    public static SimpleMailSendingHasBeenRequestedEvent ofOTP(
+        SendingRecipient recipientAddress,
+        String subject,
+        List<String> attachmentUrls,
+        OtpReason otpReason,
+        String text
+    ) {
+        return new SimpleMailSendingHasBeenRequestedEvent(
+            recipientAddress,
+            subject,
+            attachmentUrls,
+            SendingReason.OTP,
+            otpReason,
+            text
+        );
+    }
 }

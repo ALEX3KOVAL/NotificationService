@@ -2,10 +2,13 @@ package ru.alex3koval.notificationService.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.Map;
+
 @ConfigurationProperties("app")
 public record AppEnvironment(
     Mailer mailer,
-    Sms sms
+    Sms sms,
+    Map<String, RetryProps> retry
 ) {
     public record Mailer(
         String senderAddress,
@@ -17,6 +20,13 @@ public record AppEnvironment(
 
     public record Sms(
         String otpTemplateJsonFilePath
+    ) {
+    }
+
+    public record RetryProps(
+        short maxAttempts,
+        long minDelay,
+        float jitter
     ) {
     }
 }

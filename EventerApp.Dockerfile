@@ -4,10 +4,10 @@ WORKDIR /app
 
 COPY build/libs .
 COPY ./.env .
-COPY build/resources/application.yml .
-COPY build/resources/"logback-spring.xml" .
+COPY settings/ .
 COPY build/eventerApp.jar .
+COPY templates templates
 
-EXPOSE 10249
+EXPOSE 10260
 
 ENTRYPOINT ["java","-jar","eventerApp.jar","--spring.config.location=/app/application.yml","--logging.config=/app/logback-spring.xml"]

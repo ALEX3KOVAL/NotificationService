@@ -1,0 +1,20 @@
+FROM openjdk:21-jdk-slim
+
+ARG APP_CDC_OFFSET_STORAGE_FILE_FILENAME
+ARG APP_CDC_OFFSET_STORAGE_FILE_FOLDER_PATH
+
+ENV CDC_OFFSET_STORAGE_FILE_FILENAME=${APP_CDC_OFFSET_STORAGE_FILE_FILENAME}
+ENV CDC_OFFSET_STORAGE_FILE_FOLDER_PATH=${APP_CDC_OFFSET_STORAGE_FILE_FOLDER_PATH}
+
+WORKDIR /app
+
+COPY build/libs .
+COPY ./.env .
+COPY settings/ .
+COPY build/eventProducerApp.jar .
+COPY templates templates
+RUN mkdir -p ${CDC_OFFSET_STORAGE_FILE_FOLDER_PATH} && touch ${CDC_OFFSET_STORAGE_FILE_FOLDER_PATH}/${CDC_OFFSET_STORAGE_FILE_FILENAME}
+
+EXPOSE 10249
+
+ENTRYPOINT ["java","-jar","eventProducerApp.jar","--spring.config.location=/app/application.yml","--logging.config=/app/logback-spring.xml"]

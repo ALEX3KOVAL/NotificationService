@@ -9,7 +9,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Getter
 public enum SendingReason {
-    OTP((short) 0);
+    OTP((short) 0),
+    OTHER((short) 1);
 
     private final short value;
 
