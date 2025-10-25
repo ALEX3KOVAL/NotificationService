@@ -8,9 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.reactive.result.view.freemarker.FreeMarkerConfig;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import ru.alex3koval.notificationService.domain.command.SendTemplatedMailCommand;
 import ru.alex3koval.notificationService.domain.common.exception.DomainException;
+import ru.alex3koval.notificationService.domain.entity.Mail;
 import ru.alex3koval.notificationService.domain.service.MailerService;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class SendTemplatedMailCommandImpl<T> extends SendTemplatedMailCommand<T>
             Template template = freemarkerClassLoaderConfig.getConfiguration().getTemplate(templateFileName);
             String messageText = FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
 
-            return sendMessage(messageText);
+            return sendMessage(messageText).map(Mail::getId);
         } catch (IOException exc) {
             throw new DomainException(
                 String.format(

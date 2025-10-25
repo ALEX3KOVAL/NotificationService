@@ -4,14 +4,14 @@ import lombok.Getter;
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.OtpReason;
 import ru.alex3koval.notificationService.domain.vo.SendingReason;
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 import java.util.List;
 import java.util.Map;
 
 @Getter
 public class TemplatedMailSendingHasBeenRequestedEvent {
-    private final SendingRecipient recipientAddress;
+    private final Identifier recipientAddress;
     private final String subject;
     private final List<String> attachmentUrls;
     private final String otpTemplateFolderPath;
@@ -23,7 +23,7 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
     private Short code;
 
     private TemplatedMailSendingHasBeenRequestedEvent(
-        SendingRecipient recipientAddress,
+        Identifier recipientAddress,
         String subject,
         List<String> attachmentUrls,
         String otpTemplateFolderPath,
@@ -43,7 +43,7 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
     }
 
     private TemplatedMailSendingHasBeenRequestedEvent(
-        SendingRecipient recipientAddress,
+        Identifier recipientAddress,
         String subject,
         List<String> attachmentUrls,
         String otpTemplateFolderPath,
@@ -69,7 +69,7 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
     }
 
     public static TemplatedMailSendingHasBeenRequestedEvent ofBase(
-        SendingRecipient recipientAddress,
+        Identifier recipientAddress,
         String subject,
         List<String> attachmentUrls,
         String otpTemplateFolderPath,
@@ -90,7 +90,7 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
     }
 
     public static TemplatedMailSendingHasBeenRequestedEvent of(
-        SendingRecipient recipientAddress,
+        Identifier recipientAddress,
         String subject,
         List<String> attachmentUrls,
         String otpTemplateFolderPath,
@@ -127,7 +127,7 @@ public class TemplatedMailSendingHasBeenRequestedEvent {
     }
 
     public static TemplatedMailSendingHasBeenRequestedEvent ofOTP(
-        SendingRecipient recipientAddress,
+        Identifier recipientAddress,
         String subject,
         List<String> attachmentUrls,
         String otpTemplateFolderPath,

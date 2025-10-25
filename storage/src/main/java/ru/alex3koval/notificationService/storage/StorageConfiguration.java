@@ -14,8 +14,8 @@ import ru.alex3koval.notificationService.storage.converter.mailFormat.ReadingMai
 import ru.alex3koval.notificationService.storage.converter.mailFormat.WritingMailFormatConverter;
 import ru.alex3koval.notificationService.storage.converter.sendingReason.ReadingSendingReasonConverter;
 import ru.alex3koval.notificationService.storage.converter.sendingReason.WritingSendingReasonConverter;
-import ru.alex3koval.notificationService.storage.converter.sendingRecipient.ReadingSendingRecipientConverter;
-import ru.alex3koval.notificationService.storage.converter.sendingRecipient.WritingSendingRecipientConverter;
+import ru.alex3koval.notificationService.storage.converter.identifier.ReadingIdentifierConverter;
+import ru.alex3koval.notificationService.storage.converter.identifier.WritingIdentifierConverter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,8 +28,8 @@ public class StorageConfiguration {
     @Bean
     public R2dbcCustomConversions r2dbcCustomConversions() {
         List<Converter<?, ?>> converters = Arrays.asList(
-            new WritingSendingRecipientConverter(),
-            new ReadingSendingRecipientConverter(),
+            new WritingIdentifierConverter(),
+            new ReadingIdentifierConverter(),
 
             new WritingSendingReasonConverter(),
             new ReadingSendingReasonConverter(),

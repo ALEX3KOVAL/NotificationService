@@ -19,6 +19,7 @@ import ru.alex3koval.notificationService.domain.repository.sending.phone.PhoneSe
 import ru.alex3koval.notificationService.domain.service.MailerService;
 import ru.alex3koval.notificationService.domain.service.PhoneService;
 import ru.alex3koval.eventingImpl.factory.TransactionalOutBoxReactiveEventPusherFactory;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 import ru.alex3koval.notificationService.storage.repository.impl.EmailSendingRepositoryImpl;
 import ru.alex3koval.notificationService.storage.repository.impl.PhoneSendingRepositoryImpl;
 import ru.alex3koval.notificationService.storage.repository.impl.TransactionalOutboxRepositoryImpl;
@@ -69,7 +70,11 @@ public class TypeDependentConfiguration {
         return new MailerServiceImpl<>(
             repository,
             mailSender,
-            env.mailer().senderAddress()
+            Identifier
+                .from(env.mailer().senderAddress())
+                .orElseThrow(() ->
+                    new RuntimeException("Адрес отправителя некорректен: " + env.mailer().senderAddress())
+                )
         );
     }
 

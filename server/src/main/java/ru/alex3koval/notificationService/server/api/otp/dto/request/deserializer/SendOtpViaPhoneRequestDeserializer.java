@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import jakarta.validation.constraints.NotBlank;
 import ru.alex3koval.notificationService.domain.vo.OtpReason;
 import ru.alex3koval.notificationService.domain.vo.Phone;
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 import ru.alex3koval.notificationService.server.api.otp.dto.request.SendOtpViaPhoneRequest;
 
 import java.io.IOException;
@@ -23,9 +23,9 @@ public class SendOtpViaPhoneRequestDeserializer extends StdDeserializer<SendOtpV
         ObjectCodec oc = p.getCodec();
         JsonNode node = oc.readTree(p);
 
-        SendingRecipient phone = ctxt.readValue(
+        Identifier phone = ctxt.readValue(
             node.get("phone").traverse(oc),
-            SendingRecipient.class
+            Identifier.class
         );
 
         @NotBlank

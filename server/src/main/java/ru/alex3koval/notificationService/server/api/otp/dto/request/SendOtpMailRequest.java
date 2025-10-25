@@ -2,12 +2,12 @@ package ru.alex3koval.notificationService.server.api.otp.dto.request;
 
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.OtpReason;
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 import java.util.List;
 
 public record SendOtpMailRequest(
-    SendingRecipient recipientAddress,
+    Identifier recipientAddress,
     String subject,
     Short code,
     OtpReason otpReason,

@@ -8,7 +8,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.SendingReason;
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class EmailSending<T> {
     public EmailSending(
         String subject,
-        SendingRecipient recipient,
+        Identifier recipient,
         SendingReason reason,
         MailFormat format,
         String model,
@@ -40,7 +40,7 @@ public class EmailSending<T> {
     @Column("subject")
     private String subject;
     @Column("recipient")
-    private SendingRecipient recipient;
+    private Identifier recipient;
     @Column("model")
     private String jsonModel;
     @Column("reason")

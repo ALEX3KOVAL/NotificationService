@@ -20,8 +20,8 @@ public class SerializationConfiguration {
     SimpleModule domainVoSerializationModule() {
         SimpleModule module = new SimpleModule();
 
-        module.addSerializer(SendingRecipient.class, new SendingRecipientSerializer());
-        module.addDeserializer(SendingRecipient.class, new SendingRecipientDeserializer());
+        module.addSerializer(Identifier.class, new IdentifierSerializer());
+        module.addDeserializer(Identifier.class, new IdentifierDeserializer());
 
         module.addSerializer(Email.class, new EmailSerializer());
         module.addDeserializer(Email.class, new EmailDeserializer());

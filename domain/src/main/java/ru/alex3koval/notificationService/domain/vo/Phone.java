@@ -2,12 +2,12 @@ package ru.alex3koval.notificationService.domain.vo;
 
 import java.util.Optional;
 
-public class Phone extends SendingRecipient {
+public class Phone extends Identifier {
     private Phone(String value) {
         super(value);
     }
 
-    public static Optional<SendingRecipient> of(String value) {
+    public static Optional<Identifier> of(String value) {
         String preprocessed = value.replaceAll("\\D+", "");
 
         if (

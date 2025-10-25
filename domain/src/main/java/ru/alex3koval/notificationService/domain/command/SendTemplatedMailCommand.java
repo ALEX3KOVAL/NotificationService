@@ -5,7 +5,7 @@ import ru.alex3koval.notificationService.domain.service.MailerService;
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.OtpReason;
 import ru.alex3koval.notificationService.domain.vo.SendingReason;
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 import java.util.List;
 import java.util.Map;
@@ -38,7 +38,7 @@ public abstract class SendTemplatedMailCommand<T> extends SendMailCommand<T> {
         private final String templateFileName;
 
         public DTO(
-            SendingRecipient recipientAddress,
+            Identifier recipientAddress,
             String subject,
             List<String> attachmentUrls,
             String templateFolderPath,
@@ -54,7 +54,7 @@ public abstract class SendTemplatedMailCommand<T> extends SendMailCommand<T> {
         }
 
         public static DTO ofBase(
-            SendingRecipient recipientAddress,
+            Identifier recipientAddress,
             String subject,
             List<String> attachmentUrls,
             String templateFolderPath,
@@ -75,7 +75,7 @@ public abstract class SendTemplatedMailCommand<T> extends SendMailCommand<T> {
         }
 
         public static DTO ofOTP(
-            SendingRecipient recipientAddress,
+            Identifier recipientAddress,
             String subject,
             List<String> attachmentUrls,
             String templateFolderPath,

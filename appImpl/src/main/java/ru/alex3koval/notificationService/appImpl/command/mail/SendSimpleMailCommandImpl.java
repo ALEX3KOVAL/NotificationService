@@ -5,17 +5,18 @@ import lombok.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import ru.alex3koval.notificationService.domain.command.SendMailCommand;
+import ru.alex3koval.notificationService.domain.entity.Mail;
 import ru.alex3koval.notificationService.domain.service.MailerService;
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.SendingReason;
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 import java.util.List;
 import java.util.Map;
 
 public class SendSimpleMailCommandImpl<T> extends SendMailCommand<T> {
     public SendSimpleMailCommandImpl(
-        SendingRecipient recipientAddress,
+        Identifier recipientAddress,
         String subject,
         List<String> attachmentUrls,
         Map<String, Object> model,
@@ -37,13 +38,13 @@ public class SendSimpleMailCommandImpl<T> extends SendMailCommand<T> {
     @NonNull
     @Transactional
     public Mono<T> execute() {
-        return sendMessage(model.get("text").toString());
+        return sendMessage(model.get("text").toString()).map(Mail::getId);
     }
 
     @Getter
     public static class DTO extends SendMailCommand.DTO {
         public DTO(
-            SendingRecipient recipientAddress,
+            Identifier recipientAddress,
             String subject,
             List<String> attachmentUrls,
             MailFormat format,

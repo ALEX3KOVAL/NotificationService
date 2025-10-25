@@ -8,15 +8,16 @@ import reactor.core.publisher.Mono;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.EmailSendingRepository;
 import ru.alex3koval.notificationService.domain.service.MailerService;
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 public class MailerServiceImpl<T> extends MailerService<T> {
     private final JavaMailSender mailSender;
-    private final String senderAddress;
+    private final Identifier senderAddress;
 
     public MailerServiceImpl(
         EmailSendingRepository<T> repository,
         JavaMailSender mailSender,
-        String senderAddress
+        Identifier senderAddress
     ) {
         super(repository);
 
@@ -26,7 +27,7 @@ public class MailerServiceImpl<T> extends MailerService<T> {
 
     @Override
     public Mono<Void> send(
-        String recipientAddress,
+        Identifier recipientAddress,
         String subject,
         String text,
         MailFormat format
@@ -48,7 +49,7 @@ public class MailerServiceImpl<T> extends MailerService<T> {
     }
 
     private MimeMessage createMessage(
-        String recipientAddress,
+        Identifier recipientAddress,
         String subject,
         String text,
         MailFormat format
@@ -56,8 +57,8 @@ public class MailerServiceImpl<T> extends MailerService<T> {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        helper.setFrom(senderAddress);
-        helper.setTo(recipientAddress);
+        helper.setFrom(senderAddress.getValue());
+        helper.setTo(recipientAddress.getValue());
         helper.setSubject(subject);
         helper.setText(text, format.isHtml());
 

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import jakarta.validation.constraints.NotBlank;
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.OtpReason;
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 import ru.alex3koval.notificationService.server.api.otp.dto.request.SendOtpMailRequest;
 
 import java.io.IOException;
@@ -27,9 +27,9 @@ public class SendMailRequestDeserializer extends StdDeserializer<SendOtpMailRequ
         JsonNode node = oc.readTree(p);
         MailFormat mailFormat = MailFormat.HTML;
 
-        SendingRecipient recipientEmail = ctxt.readValue(
+        Identifier recipientEmail = ctxt.readValue(
             node.get("recipientAddress").traverse(oc),
-            SendingRecipient.class
+            Identifier.class
         );
 
         OtpReason otpReason = ctxt.readValue(

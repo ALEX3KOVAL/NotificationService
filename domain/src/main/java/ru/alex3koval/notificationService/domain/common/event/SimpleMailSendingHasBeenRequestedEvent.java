@@ -4,13 +4,13 @@ import lombok.Getter;
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.OtpReason;
 import ru.alex3koval.notificationService.domain.vo.SendingReason;
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 import java.util.List;
 
 @Getter
 public class SimpleMailSendingHasBeenRequestedEvent {
-    private final SendingRecipient recipientAddress;
+    private final Identifier recipientAddress;
     private final String subject;
     private final List<String> attachmentUrls;
     private final MailFormat mailFormat;
@@ -19,7 +19,7 @@ public class SimpleMailSendingHasBeenRequestedEvent {
     private OtpReason otpReason;
 
     private SimpleMailSendingHasBeenRequestedEvent(
-        SendingRecipient recipientAddress,
+        Identifier recipientAddress,
         String subject,
         List<String> attachmentUrls,
         SendingReason sendingReason,
@@ -34,7 +34,7 @@ public class SimpleMailSendingHasBeenRequestedEvent {
     }
 
     private SimpleMailSendingHasBeenRequestedEvent(
-        SendingRecipient recipientAddress,
+        Identifier recipientAddress,
         String subject,
         List<String> attachmentUrls,
         SendingReason sendingReason,
@@ -52,7 +52,7 @@ public class SimpleMailSendingHasBeenRequestedEvent {
     }
 
     public static SimpleMailSendingHasBeenRequestedEvent ofBase(
-        SendingRecipient recipientAddress,
+        Identifier recipientAddress,
         String subject,
         List<String> attachmentUrls,
         String text
@@ -67,7 +67,7 @@ public class SimpleMailSendingHasBeenRequestedEvent {
     }
 
     public static SimpleMailSendingHasBeenRequestedEvent of(
-        SendingRecipient recipientAddress,
+        Identifier recipientAddress,
         String subject,
         List<String> attachmentUrls,
         OtpReason otpReason,
@@ -93,7 +93,7 @@ public class SimpleMailSendingHasBeenRequestedEvent {
     }
 
     public static SimpleMailSendingHasBeenRequestedEvent ofOTP(
-        SendingRecipient recipientAddress,
+        Identifier recipientAddress,
         String subject,
         List<String> attachmentUrls,
         OtpReason otpReason,

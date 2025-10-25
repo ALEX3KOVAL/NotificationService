@@ -7,11 +7,11 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Getter
-public abstract class SendingRecipient {
+public abstract class Identifier {
     private final String value;
 
-    public static Optional<SendingRecipient> from(String value) {
-        Optional<SendingRecipient> phoneOptional = Phone.of(value);
+    public static Optional<Identifier> from(String value) {
+        Optional<Identifier> phoneOptional = Phone.of(value);
 
         if (phoneOptional.isPresent()) {
             return phoneOptional;

@@ -1,10 +1,10 @@
 package ru.alex3koval.notificationService.domain.repository.sending.mail.dto;
 
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 public record MailSendingRDTO<T>(
     T id,
-    SendingRecipient recipientAddress,
+    Identifier recipientAddress,
     String subject
 ) {
 }

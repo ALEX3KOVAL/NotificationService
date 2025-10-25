@@ -11,7 +11,7 @@ import ru.alex3koval.notificationService.domain.common.event.TemplatedMailSendin
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.OtpReason;
 import ru.alex3koval.notificationService.domain.vo.SendingReason;
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,9 +24,9 @@ public class TemplatedMailSendingHasBeenRequestedEventDeserializer extends JsonD
         ObjectCodec oc = p.getCodec();
         JsonNode node = oc.readTree(p);
 
-        SendingRecipient sendingRecipient = ctxt.readValue(
+        Identifier sendingRecipient = ctxt.readValue(
             node.get("recipientAddress").traverse(oc),
-            SendingRecipient.class
+            Identifier.class
         );
 
         List<String> attachmentUrls = new ArrayList<>();

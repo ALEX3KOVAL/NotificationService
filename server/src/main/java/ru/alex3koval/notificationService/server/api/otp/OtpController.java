@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import ru.alex3koval.eventingContract.vo.EventStatus;
+import ru.alex3koval.eventingImpl.factory.TransactionalOutBoxReactiveEventPusherFactory;
 import ru.alex3koval.notificationService.appImpl.command.factory.CommandFactory;
 import ru.alex3koval.notificationService.appImpl.command.factory.SendPhoneMessageCommandFactory;
 import ru.alex3koval.notificationService.appImpl.command.factory.SendTemplatedMailCommandFactory;
@@ -24,7 +25,6 @@ import ru.alex3koval.notificationService.domain.common.event.PhoneMessageSending
 import ru.alex3koval.notificationService.domain.common.event.TemplatedMailSendingHasBeenRequestedEvent;
 import ru.alex3koval.notificationService.domain.common.exception.DomainException;
 import ru.alex3koval.notificationService.domain.common.vo.Topic;
-import ru.alex3koval.eventingImpl.factory.TransactionalOutBoxReactiveEventPusherFactory;
 import ru.alex3koval.notificationService.server.api.otp.dto.request.SendOtpMailRequest;
 import ru.alex3koval.notificationService.server.api.otp.dto.request.SendOtpViaPhoneRequest;
 
@@ -123,18 +123,15 @@ public class OtpController {
         return retryService
             .withRetry(
                 mono,
-                () -> {
-                    transactionalOutBoxEventPusherFactory
-                        .create()
-                        .push(
-
-                            dlt.getValue(),
-                            EventStatus.CREATED,
-                            dltEvent
-                        )
-                        .subscribeOn(Schedulers.boundedElastic())
-                        .subscribe();
-                }
+                () -> transactionalOutBoxEventPusherFactory
+                    .create()
+                    .push(
+                        dlt.getValue(),
+                        EventStatus.CREATED,
+                        dltEvent
+                    )
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .subscribe()
             )
             .subscribeOn(Schedulers.boundedElastic());
     }

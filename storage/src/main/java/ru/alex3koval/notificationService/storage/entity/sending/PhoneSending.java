@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import ru.alex3koval.notificationService.domain.vo.SendingReason;
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class PhoneSending<T> {
     public PhoneSending(
-        SendingRecipient recipient,
+        Identifier recipient,
         SendingReason reason,
         String text,
         LocalDateTime createdAt,
@@ -31,7 +31,7 @@ public class PhoneSending<T> {
     @Id
     private T id;
     @Column("recipient")
-    private SendingRecipient recipient;
+    private Identifier recipient;
     @Column("reason")
     private SendingReason reason;
     @Column("text")

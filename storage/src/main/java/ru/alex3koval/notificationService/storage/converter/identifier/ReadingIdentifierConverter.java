@@ -1,27 +1,27 @@
-package ru.alex3koval.notificationService.storage.converter.sendingRecipient;
+package ru.alex3koval.notificationService.storage.converter.identifier;
 
 import lombok.NonNull;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
-import ru.alex3koval.notificationService.domain.vo.SendingRecipient;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 @ReadingConverter
-public class ReadingSendingRecipientConverter implements Converter<String, SendingRecipient> {
+public class ReadingIdentifierConverter implements Converter<String, Identifier> {
     @Override
-    public SendingRecipient convert(@NonNull String source) {
-        return SendingRecipient
+    public Identifier convert(@NonNull String source) {
+        return Identifier
             .from(source)
             .orElseThrow(() ->
                 new ConversionFailedException(
                     TypeDescriptor.valueOf(String.class),
-                    TypeDescriptor.valueOf(SendingRecipient.class),
+                    TypeDescriptor.valueOf(Identifier.class),
                     source,
                     new IllegalArgumentException(
                         String.format(
                             "Не удалось провести конвертацию String в %s",
-                            SendingRecipient.class.getCanonicalName()
+                            Identifier.class.getCanonicalName()
                         )
                     )
                 )
