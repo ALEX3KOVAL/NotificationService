@@ -9,7 +9,6 @@ public class RetryServiceFactory {
     private final RetryConfigurations retryConfigs;
 
     public RetryService create(String retryName) {
-
         return new RetryService(retryConfigs.getConfig(retryName));
     }
 }
