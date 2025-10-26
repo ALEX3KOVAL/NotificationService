@@ -7,7 +7,6 @@ import freemarker.cache.TemplateLoader;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -19,6 +18,7 @@ import ru.alex3koval.notificationService.appImpl.model.RetryConfigurations;
 import ru.alex3koval.notificationService.appImpl.model.SmsMessageBodyProperties;
 import ru.alex3koval.notificationService.appImpl.service.RetryService;
 import ru.alex3koval.notificationService.configuration.AppEnvironment;
+import ru.alex3koval.notificationService.configuration.di.appImplModule.client.HttpClientConfiguration;
 import ru.alex3koval.notificationService.configuration.di.appImplModule.client.KafkaClientConfiguration;
 import ru.alex3koval.notificationService.configuration.di.appImplModule.serialization.JacksonConfiguration;
 import ru.alex3koval.notificationService.configuration.di.appImplModule.serialization.SerializationConfiguration;
@@ -32,7 +32,12 @@ import java.util.stream.Collectors;
 
 @Configuration
 @RequiredArgsConstructor
-@Import({KafkaClientConfiguration.class, JacksonConfiguration.class, SerializationConfiguration.class})
+@Import({
+    KafkaClientConfiguration.class,
+    JacksonConfiguration.class,
+    SerializationConfiguration.class,
+    HttpClientConfiguration.class
+})
 public class AppImplModuleConfiguration {
     private final AppEnvironment appEnv;
 
@@ -102,5 +107,11 @@ public class AppImplModuleConfiguration {
     @Scope("prototype")
     RetryService otpRetryService(RetryServiceFactory retryServiceFactory) {
         return retryServiceFactory.create("otp");
+    }
+
+    @Bean("fileServiceRetry")
+    @Scope("prototype")
+    RetryService fileServiceRetryService(RetryServiceFactory retryServiceFactory) {
+        return retryServiceFactory.create("file-service");
     }
 }
