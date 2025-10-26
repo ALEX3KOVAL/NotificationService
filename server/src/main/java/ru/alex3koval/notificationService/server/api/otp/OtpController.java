@@ -94,7 +94,7 @@ public class OtpController {
             TemplatedMailSendingHasBeenRequestedEvent.ofOTP(
                 dto.getRecipientAddress(),
                 dto.getSubject(),
-                dto.getAttachmentUrls(),
+                body.attachmentUrls(),
                 dto.getTemplateFolderPath(),
                 dto.getTemplateFileName(),
                 body.code(),
@@ -123,7 +123,7 @@ public class OtpController {
         return retryService
             .withRetry(
                 mono,
-                () -> transactionalOutBoxEventPusherFactory
+                exc -> transactionalOutBoxEventPusherFactory
                     .create()
                     .push(
                         dlt.getValue(),
