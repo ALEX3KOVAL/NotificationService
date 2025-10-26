@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import ru.alex3koval.notificationService.domain.command.SendTemplatedMailCommand;
 import ru.alex3koval.notificationService.domain.common.exception.DomainException;
 import ru.alex3koval.notificationService.domain.entity.Mail;
+import ru.alex3koval.notificationService.domain.service.FileServiceFacade;
 import ru.alex3koval.notificationService.domain.service.MailerService;
 
 import java.io.IOException;
@@ -22,9 +23,10 @@ public class SendTemplatedMailCommandImpl<T> extends SendTemplatedMailCommand<T>
     public SendTemplatedMailCommandImpl(
         SendTemplatedMailCommand.DTO dto,
         FreeMarkerConfig freemarkerClassLoaderConfig,
-        MailerService<T> mailerService
+        MailerService<T> mailerService,
+        FileServiceFacade fileServiceFacade
     ) {
-        super(dto, mailerService);
+        super(dto, mailerService, fileServiceFacade);
         this.freemarkerClassLoaderConfig = freemarkerClassLoaderConfig;
     }
 
