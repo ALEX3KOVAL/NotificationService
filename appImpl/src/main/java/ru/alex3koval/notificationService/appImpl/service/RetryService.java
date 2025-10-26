@@ -7,6 +7,7 @@ import reactor.util.retry.RetryBackoffSpec;
 import ru.alex3koval.notificationService.appImpl.model.RetryConfigurations;
 
 import java.time.Duration;
+import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 public class RetryService {
@@ -14,7 +15,7 @@ public class RetryService {
 
     public <T> Mono<T> withRetry(
         Mono<T> mono,
-        Runnable onAllRetriesFailed
+        Consumer<Throwable> onAllRetriesFailed
     ) {
         return mono
             .retryWhen(
@@ -35,9 +36,12 @@ public class RetryService {
             .jitter(props.jitter());
     }
 
-    private RetryBackoffSpec withOnRetryExhaustedThrow(RetryBackoffSpec baseRetry, Runnable onAllRetriesFailed) {
+    private RetryBackoffSpec withOnRetryExhaustedThrow(
+        RetryBackoffSpec baseRetry,
+        Consumer<Throwable> onAllRetriesFailed
+    ) {
         return baseRetry.onRetryExhaustedThrow((spec, signal) -> {
-            onAllRetriesFailed.run();
+            onAllRetriesFailed.accept(signal.failure());
             return signal.failure();
         });
     }
