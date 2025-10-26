@@ -6,11 +6,13 @@ import ru.alex3koval.notificationService.domain.repository.base.SendingRepositor
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.CreateMailSendingWDTO;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.MailSendingRDTO;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.UpdateMailSendingWDTO;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.SendingReason;
-import ru.alex3koval.notificationService.domain.vo.Identifier;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 public abstract class MailerService<T> extends SendingService<T, CreateMailSendingWDTO, UpdateMailSendingWDTO, MailSendingRDTO<T>> {
@@ -24,7 +26,8 @@ public abstract class MailerService<T> extends SendingService<T, CreateMailSendi
         Identifier recipientAddress,
         String subject,
         String text,
-        MailFormat format
+        MailFormat format,
+        List<Map.Entry<String, ByteArrayInputStream>> attachmentsFlux
     );
 
     public Mail<T> buildEntity(
