@@ -28,6 +28,11 @@ app:
       maxAttempts: 3,
       minDelay: 500,
       jitter: 0.5
+    },
+    file-service: {
+      maxAttempts: 3,
+      minDelay: 500,
+      jitter: 0.5
     }
   }
   sms:
@@ -50,6 +55,13 @@ app:
     schema-include-list: "public"
     table-include-list: "public.transactional_outbox"
     column-include-list: "public.transactional_outbox.id,public.transactional_outbox.name,public.transactional_outbox.topic,public.transactional_outbox.json,public.transactional_outbox.status,public.transactional_outbox.created_at"
+  web-client:
+    fileService: {
+      protocol: ${APP_FILE_SERVICE_HTTP_PROTOCOL},
+      host: ${APP_FILE_SERVICE_HOST},
+      port: ${APP_FILE_SERVICE_PORT}
+    }
+
 
 server:
   port: ${APP_SERVER_PORT}
