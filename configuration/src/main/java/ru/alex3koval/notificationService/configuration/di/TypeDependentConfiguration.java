@@ -8,17 +8,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import ru.alex3koval.eventingContract.dto.CreateEventWDTO;
+import ru.alex3koval.eventingImpl.factory.TransactionalOutBoxReactiveEventPusherFactory;
+import ru.alex3koval.notificationService.appImpl.service.FileServiceFacadeImpl;
 import ru.alex3koval.notificationService.appImpl.service.MailerServiceImpl;
 import ru.alex3koval.notificationService.appImpl.service.PhoneServiceImpl;
+import ru.alex3koval.notificationService.appImpl.service.RetryService;
 import ru.alex3koval.notificationService.configuration.AppEnvironment;
 import ru.alex3koval.notificationService.domain.common.repository.EventRepository;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.EmailSendingRepository;
 import ru.alex3koval.notificationService.domain.repository.sending.phone.PhoneSendingRepository;
+import ru.alex3koval.notificationService.domain.service.FileServiceFacade;
 import ru.alex3koval.notificationService.domain.service.MailerService;
 import ru.alex3koval.notificationService.domain.service.PhoneService;
-import ru.alex3koval.eventingImpl.factory.TransactionalOutBoxReactiveEventPusherFactory;
 import ru.alex3koval.notificationService.domain.vo.Identifier;
 import ru.alex3koval.notificationService.storage.repository.impl.EmailSendingRepositoryImpl;
 import ru.alex3koval.notificationService.storage.repository.impl.PhoneSendingRepositoryImpl;
@@ -60,6 +64,14 @@ public class TypeDependentConfiguration {
         R2dbcEntityTemplate template
     ) {
         return new TransactionalOutboxRepositoryImpl<>(ormRepository, template);
+    }
+
+    @Bean
+    FileServiceFacade fileServiceFacade(
+        @Qualifier("fileServiceWebClient") WebClient fileServiceWebClient,
+        @Qualifier("fileServiceRetry") RetryService retryService
+    ) {
+        return new FileServiceFacadeImpl(fileServiceWebClient, retryService);
     }
 
     @Bean
