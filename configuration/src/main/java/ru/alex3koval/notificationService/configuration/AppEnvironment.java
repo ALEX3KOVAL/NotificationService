@@ -8,7 +8,8 @@ import java.util.Map;
 public record AppEnvironment(
     Mailer mailer,
     Sms sms,
-    Map<String, RetryProps> retry
+    Map<String, RetryProps> retry,
+    Map<String, WebClientProps> webClient
 ) {
     public record Mailer(
         String senderAddress,
@@ -27,6 +28,13 @@ public record AppEnvironment(
         short maxAttempts,
         long minDelay,
         float jitter
+    ) {
+    }
+
+    public record WebClientProps(
+        String protocol,
+        String host,
+        Integer port
     ) {
     }
 }
