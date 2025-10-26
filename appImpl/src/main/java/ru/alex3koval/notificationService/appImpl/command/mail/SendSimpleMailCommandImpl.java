@@ -6,10 +6,11 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import ru.alex3koval.notificationService.domain.command.SendMailCommand;
 import ru.alex3koval.notificationService.domain.entity.Mail;
+import ru.alex3koval.notificationService.domain.service.FileServiceFacade;
 import ru.alex3koval.notificationService.domain.service.MailerService;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.SendingReason;
-import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 import java.util.List;
 import java.util.Map;
@@ -18,17 +19,17 @@ public class SendSimpleMailCommandImpl<T> extends SendMailCommand<T> {
     public SendSimpleMailCommandImpl(
         Identifier recipientAddress,
         String subject,
-        List<String> attachmentUrls,
         Map<String, Object> model,
         SendingReason reason,
-        MailerService<T> mailerService
+        MailerService<T> mailerService,
+        FileServiceFacade fileServiceFacade
     ) {
         super(
             recipientAddress,
             subject,
             reason,
-            attachmentUrls,
             mailerService,
+            fileServiceFacade,
             MailFormat.TEXT,
             model
         );
@@ -51,7 +52,13 @@ public class SendSimpleMailCommandImpl<T> extends SendMailCommand<T> {
             SendingReason reason,
             String text
         ) {
-            super(recipientAddress, subject, attachmentUrls, reason, format, Map.of("text", text));
+            super(
+                recipientAddress,
+                subject,
+                reason,
+                format,
+                Map.of("text", text, "attachmentUrls", attachmentUrls)
+            );
         }
     }
 }

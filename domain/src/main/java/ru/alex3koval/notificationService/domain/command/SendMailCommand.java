@@ -4,10 +4,11 @@ import lombok.Getter;
 import reactor.core.publisher.Mono;
 import ru.alex3koval.notificationService.domain.entity.Mail;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.CreateMailSendingWDTO;
+import ru.alex3koval.notificationService.domain.service.FileServiceFacade;
 import ru.alex3koval.notificationService.domain.service.MailerService;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.SendingReason;
-import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -17,8 +18,8 @@ import java.util.Map;
 public abstract class SendMailCommand<T> implements Command<Mono<T>> {
     protected final Identifier recipientAddress;
     protected final String subject;
-    protected final List<String> attachmentUrls;
     protected final MailerService<T> mailerService;
+    protected final FileServiceFacade fileServiceFacade;
     private final SendingReason reason;
     private final MailFormat format;
     protected final Map<String, Object> model;
@@ -27,7 +28,6 @@ public abstract class SendMailCommand<T> implements Command<Mono<T>> {
     public static class DTO {
         private final Identifier recipientAddress;
         private final String subject;
-        private final List<String> attachmentUrls;
         private final SendingReason reason;
         private final Map<String, Object> model;
         private final MailFormat format;
@@ -35,14 +35,12 @@ public abstract class SendMailCommand<T> implements Command<Mono<T>> {
         protected DTO(
             Identifier recipientAddress,
             String subject,
-            List<String> attachmentUrls,
             SendingReason reason,
             MailFormat format,
             Map<String, Object> model
         ) {
             this.recipientAddress = recipientAddress;
             this.subject = subject;
-            this.attachmentUrls = attachmentUrls;
             this.reason = reason;
             this.format = format;
             this.model = model;
@@ -53,15 +51,15 @@ public abstract class SendMailCommand<T> implements Command<Mono<T>> {
         Identifier recipientAddress,
         String subject,
         SendingReason reason,
-        List<String> attachmentUrls,
         MailerService<T> mailerService,
+        FileServiceFacade fileServiceFacade,
         MailFormat format,
         Map<String, Object> model
     ) {
         this.mailerService = mailerService;
+        this.fileServiceFacade = fileServiceFacade;
         this.recipientAddress = recipientAddress;
         this.subject = subject;
-        this.attachmentUrls = attachmentUrls;
         this.format = format;
         this.model = model;
         this.reason = reason;
@@ -70,12 +68,18 @@ public abstract class SendMailCommand<T> implements Command<Mono<T>> {
     protected Mono<Mail<T>> sendMessage(String messageText) {
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        return mailerService
-            .send(
-                recipientAddress,
-                subject,
-                messageText,
-                format
+        return fileServiceFacade
+            .getAllByAttachmentUrls((List<String>) model.get("attachmentUrls"))
+            .collectList()
+            .flatMap(attachments ->
+                mailerService
+                    .send(
+                        recipientAddress,
+                        subject,
+                        messageText,
+                        format,
+                        attachments
+                    )
             )
             .then(
                 mailerService.create(
@@ -85,7 +89,6 @@ public abstract class SendMailCommand<T> implements Command<Mono<T>> {
                         reason,
                         format,
                         model,
-                        attachmentUrls,
                         now
                     )
                 )

@@ -1,11 +1,12 @@
 package ru.alex3koval.notificationService.domain.command;
 
 import lombok.Getter;
+import ru.alex3koval.notificationService.domain.service.FileServiceFacade;
 import ru.alex3koval.notificationService.domain.service.MailerService;
+import ru.alex3koval.notificationService.domain.vo.Identifier;
 import ru.alex3koval.notificationService.domain.vo.MailFormat;
 import ru.alex3koval.notificationService.domain.vo.OtpReason;
 import ru.alex3koval.notificationService.domain.vo.SendingReason;
-import ru.alex3koval.notificationService.domain.vo.Identifier;
 
 import java.util.List;
 import java.util.Map;
@@ -16,14 +17,15 @@ public abstract class SendTemplatedMailCommand<T> extends SendMailCommand<T> {
 
     protected SendTemplatedMailCommand(
         DTO dto,
-        MailerService<T> mailerService
+        MailerService<T> mailerService,
+        FileServiceFacade fileServiceFacade
     ) {
         super(
             dto.getRecipientAddress(),
             dto.getSubject(),
             dto.getReason(),
-            dto.getAttachmentUrls(),
             mailerService,
+            fileServiceFacade,
             dto.getFormat(),
             dto.getModel()
         );
@@ -40,14 +42,13 @@ public abstract class SendTemplatedMailCommand<T> extends SendMailCommand<T> {
         public DTO(
             Identifier recipientAddress,
             String subject,
-            List<String> attachmentUrls,
             String templateFolderPath,
             String templateFileName,
             MailFormat format,
             SendingReason reason,
             Map<String, Object> model
         ) {
-            super(recipientAddress, subject, attachmentUrls, reason, format, model);
+            super(recipientAddress, subject, reason, format, model);
 
             this.templateFolderPath = templateFolderPath;
             this.templateFileName = templateFileName;
@@ -65,12 +66,11 @@ public abstract class SendTemplatedMailCommand<T> extends SendMailCommand<T> {
             return new DTO(
                 recipientAddress,
                 subject,
-                attachmentUrls,
                 templateFolderPath,
                 templateFileName,
                 MailFormat.TEXT,
                 reason,
-                Map.of("text", text)
+                Map.of("text", text, "attachmentUrls", attachmentUrls)
             );
         }
 
@@ -86,14 +86,14 @@ public abstract class SendTemplatedMailCommand<T> extends SendMailCommand<T> {
             return new DTO(
                 recipientAddress,
                 subject,
-                attachmentUrls,
                 templateFolderPath,
                 templateFileName,
                 MailFormat.HTML,
                 SendingReason.OTP,
                 Map.of(
                     "code", code,
-                    "reason", otpReason.toString()
+                    "reason", otpReason.toString(),
+                    "attachmentUrls", attachmentUrls
                 )
             );
         }
