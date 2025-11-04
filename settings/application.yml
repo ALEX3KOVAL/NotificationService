@@ -62,7 +62,6 @@ app:
       port: ${APP_FILE_SERVICE_PORT}
     }
 
-
 server:
   port: ${APP_SERVER_PORT}
 
