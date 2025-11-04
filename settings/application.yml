@@ -70,8 +70,8 @@ spring:
   mail:
     host: smtp.yandex.ru
     port: 465
-    username: Koval3nich
-    password: gqntfohlgaddeknn
+    username: ${APP_MAILER_SMTP_USERNAME}
+    password: ${APP_MAILER_SMTP_PASSWORD}
     default-encoding: UTF-8
     protocol: smtp
     properties:
