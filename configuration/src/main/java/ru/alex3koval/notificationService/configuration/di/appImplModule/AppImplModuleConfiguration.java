@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
 import org.springframework.web.reactive.result.view.freemarker.FreeMarkerConfig;
 import org.springframework.web.reactive.result.view.freemarker.FreeMarkerConfigurer;
-import ru.alex3koval.notificationService.appImpl.factory.RetryServiceFactory;
+import ru.alex3koval.notificationService.appImpl.service.factory.RetryServiceFactory;
 import ru.alex3koval.notificationService.appImpl.model.RetryConfigurations;
 import ru.alex3koval.notificationService.appImpl.model.SmsMessageBodyProperties;
 import ru.alex3koval.notificationService.appImpl.service.RetryService;

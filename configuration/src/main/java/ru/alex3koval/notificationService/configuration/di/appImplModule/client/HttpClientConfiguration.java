@@ -23,7 +23,7 @@ public class HttpClientConfiguration {
             .builder()
             .baseUrl(
                 String.format(
-                    "%s://%s:%d",
+                    "%s://%s:%d/file",
                     fileServiceWebClientProps.protocol(),
                     fileServiceWebClientProps.host(),
                     fileServiceWebClientProps.port()

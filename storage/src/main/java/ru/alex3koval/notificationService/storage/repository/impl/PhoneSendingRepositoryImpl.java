@@ -11,7 +11,6 @@ import ru.alex3koval.notificationService.domain.repository.sending.phone.PhoneSe
 import ru.alex3koval.notificationService.domain.repository.sending.phone.dto.CreatePhoneSendingWDTO;
 import ru.alex3koval.notificationService.domain.repository.sending.phone.dto.PhoneSendingRDTO;
 import ru.alex3koval.notificationService.domain.repository.sending.phone.dto.UpdatePhoneSendingWDTO;
-import ru.alex3koval.notificationService.storage.entity.sending.EmailSending;
 import ru.alex3koval.notificationService.storage.entity.sending.PhoneSending;
 import ru.alex3koval.notificationService.storage.repository.orm.OrmPhoneSendingRepository;
 

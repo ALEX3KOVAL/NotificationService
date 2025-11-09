@@ -1,7 +1,7 @@
 package ru.alex3koval.notificationService.domain.service;
 
 import reactor.core.publisher.Mono;
-import ru.alex3koval.notificationService.domain.entity.Mail;
+import ru.alex3koval.notificationService.domain.entity.MailSending;
 import ru.alex3koval.notificationService.domain.repository.base.SendingRepository;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.CreateMailSendingWDTO;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.MailSendingRDTO;
@@ -30,7 +30,7 @@ public abstract class MailerService<T> extends SendingService<T, CreateMailSendi
         List<Map.Entry<String, ByteArrayInputStream>> attachmentsFlux
     );
 
-    public Mail<T> buildEntity(
+    public MailSending<T> buildEntity(
         T id,
         Identifier recipientAddress,
         String subject,
@@ -40,7 +40,7 @@ public abstract class MailerService<T> extends SendingService<T, CreateMailSendi
         LocalDateTime createdAt,
         LocalDateTime updatedAt
     ) {
-        return new Mail<>(
+        return new MailSending<>(
             id,
             recipientAddress,
             reason,

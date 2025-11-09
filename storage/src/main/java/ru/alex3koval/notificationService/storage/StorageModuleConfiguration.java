@@ -1,0 +1,46 @@
+package ru.alex3koval.notificationService.storage;
+
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
+import org.springframework.data.r2dbc.convert.R2dbcCustomConversions;
+import org.springframework.data.r2dbc.dialect.PostgresDialect;
+import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
+import ru.alex3koval.notificationService.storage.converter.eventStatus.ReadingEventStatusConverter;
+import ru.alex3koval.notificationService.storage.converter.eventStatus.WritingEventStatusConverter;
+import ru.alex3koval.notificationService.storage.converter.mailFormat.ReadingMailFormatConverter;
+import ru.alex3koval.notificationService.storage.converter.mailFormat.WritingMailFormatConverter;
+import ru.alex3koval.notificationService.storage.converter.sendingReason.ReadingSendingReasonConverter;
+import ru.alex3koval.notificationService.storage.converter.sendingReason.WritingSendingReasonConverter;
+import ru.alex3koval.notificationService.storage.converter.identifier.ReadingIdentifierConverter;
+import ru.alex3koval.notificationService.storage.converter.identifier.WritingIdentifierConverter;
+
+import java.util.Arrays;
+import java.util.List;
+
+@Configuration
+@EnableR2dbcRepositories("ru.alex3koval.notificationService.storage.repository.orm")
+@EntityScan("ru.alex3koval.notificationService.storage.entity")
+@EnableR2dbcAuditing
+public class StorageModuleConfiguration {
+    @Bean
+    public R2dbcCustomConversions r2dbcCustomConversions() {
+        List<Converter<?, ?>> converters = Arrays.asList(
+            new WritingIdentifierConverter(),
+            new ReadingIdentifierConverter(),
+
+            new WritingSendingReasonConverter(),
+            new ReadingSendingReasonConverter(),
+
+            new WritingEventStatusConverter(),
+            new ReadingEventStatusConverter(),
+
+            new WritingMailFormatConverter(),
+            new ReadingMailFormatConverter()
+        );
+
+        return R2dbcCustomConversions.of(PostgresDialect.INSTANCE, converters);
+    }
+}

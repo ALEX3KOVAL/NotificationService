@@ -15,7 +15,6 @@ import ru.alex3koval.eventingImpl.factory.TransactionalOutBoxReactiveEventPusher
 import ru.alex3koval.notificationService.appImpl.service.FileServiceFacadeImpl;
 import ru.alex3koval.notificationService.appImpl.service.MailerServiceImpl;
 import ru.alex3koval.notificationService.appImpl.service.PhoneServiceImpl;
-import ru.alex3koval.notificationService.appImpl.service.RetryService;
 import ru.alex3koval.notificationService.configuration.AppEnvironment;
 import ru.alex3koval.notificationService.domain.common.repository.EventRepository;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.EmailSendingRepository;
@@ -68,10 +67,9 @@ public class TypeDependentConfiguration {
 
     @Bean
     FileServiceFacade fileServiceFacade(
-        @Qualifier("fileServiceWebClient") WebClient fileServiceWebClient,
-        @Qualifier("fileServiceRetry") RetryService retryService
+        @Qualifier("fileServiceWebClient") WebClient fileServiceWebClient
     ) {
-        return new FileServiceFacadeImpl(fileServiceWebClient, retryService);
+        return new FileServiceFacadeImpl(fileServiceWebClient);
     }
 
     @Bean

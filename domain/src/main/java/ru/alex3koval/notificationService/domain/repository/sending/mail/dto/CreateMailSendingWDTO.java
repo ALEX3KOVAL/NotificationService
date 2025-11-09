@@ -13,6 +13,7 @@ public record CreateMailSendingWDTO(
     SendingReason reason,
     MailFormat format,
     Map<String, Object> model,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt
 ) {
 }

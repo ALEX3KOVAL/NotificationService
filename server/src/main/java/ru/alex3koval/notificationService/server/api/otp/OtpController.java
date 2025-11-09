@@ -117,8 +117,7 @@ public class OtpController {
         Mono<ResponseEntity<?>> mono = commandFactory
             .create(dto)
             .execute()
-            .flatMap(mapper)
-            .subscribeOn(Schedulers.boundedElastic());
+            .flatMap(mapper);
 
         return retryService
             .withRetry(

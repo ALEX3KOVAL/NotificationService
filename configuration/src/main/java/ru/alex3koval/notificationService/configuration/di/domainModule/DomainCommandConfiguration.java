@@ -8,16 +8,18 @@ import ru.alex3koval.notificationService.appImpl.command.factory.SendPhoneMessag
 import ru.alex3koval.notificationService.appImpl.command.factory.SendSimpleMailCommandFactory;
 import ru.alex3koval.notificationService.appImpl.command.factory.SendTemplatedMailCommandFactory;
 import ru.alex3koval.notificationService.appImpl.model.SmsMessageBodyProperties;
+import ru.alex3koval.notificationService.domain.service.FileServiceFacade;
 import ru.alex3koval.notificationService.domain.service.MailerService;
 
 @Configuration
 @RequiredArgsConstructor
 public class DomainCommandConfiguration {
-    private final MailerService mailerService;
+    private final MailerService<?> mailerService;
+    private final FileServiceFacade fileServiceFacade;
 
     @Bean
-    SendSimpleMailCommandFactory sendOtpViaMailCommandFactory() {
-        return new SendSimpleMailCommandFactory(mailerService);
+    SendSimpleMailCommandFactory<?> sendOtpViaMailCommandFactory() {
+        return new SendSimpleMailCommandFactory<>(mailerService, fileServiceFacade);
     }
 
     @Bean
@@ -26,6 +28,7 @@ public class DomainCommandConfiguration {
     ) {
         return new SendTemplatedMailCommandFactory<>(
             mailerService,
+            fileServiceFacade,
             freemarkerClassLoaderConfig
         );
     }

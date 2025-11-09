@@ -21,13 +21,9 @@ public abstract class SendTemplatedMailCommand<T> extends SendMailCommand<T> {
         FileServiceFacade fileServiceFacade
     ) {
         super(
-            dto.getRecipientAddress(),
-            dto.getSubject(),
-            dto.getReason(),
+            dto,
             mailerService,
-            fileServiceFacade,
-            dto.getFormat(),
-            dto.getModel()
+            fileServiceFacade
         );
 
         this.templateFolderPath = dto.getTemplateFolderPath();

@@ -23,20 +23,20 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 public class EmailSendingRepositoryImpl<T> implements EmailSendingRepository<T> {
-    private final OrmEmailSendingRepository<T> jpaRepository;
+    private final OrmEmailSendingRepository<T> ormRepository;
     private final ObjectMapper objectMapper;
     private final R2dbcEntityTemplate template;
 
     @Override
     public Mono<MailSendingRDTO<T>> get(T id) {
-        return jpaRepository.findById(id).map(this::toRdto);
+        return ormRepository.findById(id).map(this::toRdto);
     }
 
     @Override
     public Mono<T> create(CreateMailSendingWDTO createMailWDTO) {
         try {
-            return jpaRepository
-                .saveWithReturning(toEntity(createMailWDTO))
+            return ormRepository
+                .saveWithReturning(ormRepository.toEntity(createMailWDTO, objectMapper))
                 .map(EmailSending::getId);
         } catch (JsonProcessingException exc) {
             return Mono.error(exc);
@@ -71,23 +71,14 @@ public class EmailSendingRepositoryImpl<T> implements EmailSendingRepository<T> 
             .thenReturn(id);
     }
 
-    private EmailSending<T> toEntity(CreateMailSendingWDTO dto) throws JsonProcessingException {
-        return new EmailSending<>(
-            dto.subject(),
-            dto.recipient(),
-            dto.reason(),
-            dto.format(),
-            objectMapper.writeValueAsString(dto.model()),
-            dto.createdAt(),
-            dto.createdAt()
-        );
-    }
-
     private MailSendingRDTO<T> toRdto(EmailSending<T> entity) {
         return new MailSendingRDTO<>(
             entity.getId(),
             entity.getRecipient(),
-            entity.getSubject()
+            entity.getSubject(),
+            entity.getReason(),
+            entity.getFormat(),
+            entity.getJsonModel()
         );
     }
 }

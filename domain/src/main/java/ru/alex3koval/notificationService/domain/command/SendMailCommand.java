@@ -2,7 +2,7 @@ package ru.alex3koval.notificationService.domain.command;
 
 import lombok.Getter;
 import reactor.core.publisher.Mono;
-import ru.alex3koval.notificationService.domain.entity.Mail;
+import ru.alex3koval.notificationService.domain.entity.MailSending;
 import ru.alex3koval.notificationService.domain.repository.sending.mail.dto.CreateMailSendingWDTO;
 import ru.alex3koval.notificationService.domain.service.FileServiceFacade;
 import ru.alex3koval.notificationService.domain.service.MailerService;
@@ -16,13 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class SendMailCommand<T> implements Command<Mono<T>> {
-    protected final Identifier recipientAddress;
-    protected final String subject;
+    protected final DTO dto;
     protected final MailerService<T> mailerService;
     protected final FileServiceFacade fileServiceFacade;
-    private final SendingReason reason;
-    private final MailFormat format;
-    protected final Map<String, Object> model;
 
     @Getter
     public static class DTO {
@@ -48,47 +44,40 @@ public abstract class SendMailCommand<T> implements Command<Mono<T>> {
     }
 
     protected SendMailCommand(
-        Identifier recipientAddress,
-        String subject,
-        SendingReason reason,
+        DTO dto,
         MailerService<T> mailerService,
-        FileServiceFacade fileServiceFacade,
-        MailFormat format,
-        Map<String, Object> model
+        FileServiceFacade fileServiceFacade
     ) {
         this.mailerService = mailerService;
         this.fileServiceFacade = fileServiceFacade;
-        this.recipientAddress = recipientAddress;
-        this.subject = subject;
-        this.format = format;
-        this.model = model;
-        this.reason = reason;
+        this.dto = dto;
     }
 
-    protected Mono<Mail<T>> sendMessage(String messageText) {
+    protected Mono<MailSending<T>> sendMessage(String messageText) {
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
         return fileServiceFacade
-            .getAllByAttachmentUrls((List<String>) model.get("attachmentUrls"))
+            .getAllByAttachmentUrls((List<String>) dto.model.get("attachmentUrls"))
             .collectList()
             .flatMap(attachments ->
                 mailerService
                     .send(
-                        recipientAddress,
-                        subject,
+                        dto.recipientAddress,
+                        dto.subject,
                         messageText,
-                        format,
+                        dto.format,
                         attachments
                     )
             )
             .then(
                 mailerService.create(
                     new CreateMailSendingWDTO(
-                        subject,
-                        recipientAddress,
-                        reason,
-                        format,
-                        model,
+                        dto.subject,
+                        dto.recipientAddress,
+                        dto.reason,
+                        dto.format,
+                        dto.model,
+                        now,
                         now
                     )
                 )
@@ -96,11 +85,11 @@ public abstract class SendMailCommand<T> implements Command<Mono<T>> {
             .map(id ->
                 mailerService.buildEntity(
                     id,
-                    recipientAddress,
-                    subject,
-                    reason,
-                    model,
-                    format,
+                    dto.recipientAddress,
+                    dto.subject,
+                    dto.reason,
+                    dto.model,
+                    dto.format,
                     now,
                     now
                 )

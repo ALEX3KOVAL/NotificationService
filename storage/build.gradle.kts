@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     implementation(project(":domain"))
-     implementation("alex3koval:eventing-contract:1.13.20")
+    implementation("alex3koval:eventing-contract:1.13.20")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

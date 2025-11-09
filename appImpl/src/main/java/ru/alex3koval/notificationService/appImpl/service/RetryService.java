@@ -24,10 +24,9 @@ public class RetryService {
     }
 
     public <T> Mono<T> withRetry(Mono<T> mono) {
-        return mono
-            .retryWhen(
-                withOnRetryExhaustedThrow(buildBaseRetrySpec())
-            );
+        return mono.retryWhen(
+            withOnRetryExhaustedThrow(buildBaseRetrySpec())
+        );
     }
 
     private RetryBackoffSpec buildBaseRetrySpec() {

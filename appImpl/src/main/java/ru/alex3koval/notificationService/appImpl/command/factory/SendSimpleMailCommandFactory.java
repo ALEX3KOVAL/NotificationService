@@ -14,10 +14,7 @@ public class SendSimpleMailCommandFactory<T> implements CommandFactory<SendMailC
     @Override
     public SendMailCommand<T> create(SendMailCommand.DTO dto) {
         return new SendSimpleMailCommandImpl<>(
-            dto.getRecipientAddress(),
-            dto.getSubject(),
-            dto.getModel(),
-            dto.getReason(),
+            dto,
             mailerService,
             fileServiceFacade
         );

@@ -6,13 +6,13 @@ import org.springframework.context.annotation.Import;
 import ru.alex3koval.eventingImpl.EventingConfiguration;
 import ru.alex3koval.notificationService.configuration.di.appImplModule.AppImplModuleConfiguration;
 import ru.alex3koval.notificationService.configuration.di.domainModule.DomainModuleConfiguration;
-import ru.alex3koval.notificationService.storage.StorageConfiguration;
+import ru.alex3koval.notificationService.storage.StorageModuleConfiguration;
 
 @Configuration
 @Import({
     DomainModuleConfiguration.class,
     AppImplModuleConfiguration.class,
-    StorageConfiguration.class,
+    StorageModuleConfiguration.class,
     EventingConfiguration.class,
     TypeDependentConfiguration.class
 })

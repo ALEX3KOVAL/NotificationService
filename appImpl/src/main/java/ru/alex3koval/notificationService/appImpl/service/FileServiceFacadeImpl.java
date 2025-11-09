@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FileServiceFacadeImpl implements FileServiceFacade {
     private final WebClient webClient;
-    private final RetryService retryService;
 
     @Override
     public Flux<Map.Entry<String, ByteArrayInputStream>> getAllByAttachmentUrls(List<String> attachmentUrls) {
@@ -44,35 +43,33 @@ public class FileServiceFacadeImpl implements FileServiceFacade {
             .entrySet()
             .stream()
             .map(entry ->
-                retryService.withRetry(
-                    webClient
-                        .get()
-                        .uri(uriBuilder ->
-                            uriBuilder.queryParam("url", entry.getKey()).build()
-                        )
-                        .accept(MediaType.APPLICATION_OCTET_STREAM)
-                        .exchangeToFlux(response -> {
-                            if (response.statusCode().is2xxSuccessful()) {
-                                return withFilenameContext(
-                                    response.bodyToFlux(DataBuffer.class),
-                                    extractFilenameFromHeaders(response.headers().asHttpHeaders())
-                                );
-                            }
+                webClient
+                    .get()
+                    .uri(uriBuilder ->
+                        uriBuilder
+                            .queryParam("url", entry.getKey()).build()
+                    )
+                    .accept(MediaType.APPLICATION_PDF)
+                    .exchangeToFlux(response -> {
+                        if (response.statusCode().is2xxSuccessful()) {
+                            return withFilenameContext(
+                                response.bodyToFlux(DataBuffer.class),
+                                extractFilenameFromHeaders(response.headers().asHttpHeaders())
+                            );
+                        }
 
-                            return response
-                                .<DataBuffer>createError()
-                                .flux();
-                        })
-                        .as(bufferFlux -> DataBufferUtils.write(bufferFlux, entry.getValue()))
-                        .then(
-                            Mono.deferContextual(ctx ->
-                                Mono.just(
-                                    Map.entry((String)ctx.get("filename"), entry.getValue())
-                                )
+                        return response
+                            .<DataBuffer>createError()
+                            .flux();
+                    })
+                    .as(bufferFlux -> DataBufferUtils.write(bufferFlux, entry.getValue()))
+                    .then(
+                        Mono.deferContextual(ctx ->
+                            Mono.just(
+                                Map.entry((String) ctx.get("filename"), entry.getValue())
                             )
-                        ),
-                    exc -> log.error(exc.getMessage(), exc)
-                )
+                        )
+                    )
             )
             .toList();
 

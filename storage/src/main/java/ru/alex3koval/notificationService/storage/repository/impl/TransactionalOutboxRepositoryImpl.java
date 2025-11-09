@@ -14,7 +14,6 @@ import ru.alex3koval.notificationService.domain.common.repository.EventRepositor
 import ru.alex3koval.notificationService.domain.common.repository.dto.EventRDTO;
 import ru.alex3koval.notificationService.domain.common.vo.Topic;
 import ru.alex3koval.notificationService.storage.entity.TransactionalOutbox;
-import ru.alex3koval.notificationService.storage.entity.sending.EmailSending;
 import ru.alex3koval.notificationService.storage.repository.orm.OrmEventRepository;
 
 import java.time.LocalDateTime;
